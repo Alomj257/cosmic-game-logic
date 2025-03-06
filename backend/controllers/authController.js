@@ -111,7 +111,23 @@ exports.forgotPassword = async (req, res) => {
         // Send OTP Email
         const subject = "Password Reset OTP";
         const text = `Your OTP is: ${otp}. This OTP will expire in 10 minutes.`;
-        const html = `<p>Your OTP is: <strong>${otp}</strong></p><p>This OTP will expire in 10 minutes.</p>`;
+        const html = `
+            <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #f9f9f9;">
+                <div style="text-align: center; padding-bottom: 20px;">
+                    <h2 style="color: #333;">Password Reset Request</h2>
+                </div>
+                <p style="font-size: 16px; color: #555;">Hello <strong>${user.firstName || user.name || 'User'}</strong>,</p>
+                <p style="font-size: 16px; color: #555;">You have requested to reset your password. Use the OTP below to proceed:</p>
+                <div style="text-align: center; padding: 15px; background-color: #fff; border-radius: 5px; border: 1px solid #ddd; margin: 20px 0;">
+                    <p style="font-size: 24px; font-weight: bold; color: #007bff; ">${otp}</p>
+                </div>
+                <p style="font-size: 16px; color: #555;">This OTP is valid for <strong>10 minutes</strong>. If you did not request this, please ignore this email.</p>
+                <p style="font-size: 16px; color: #555;">For security reasons, do not share this OTP with anyone.</p>
+                <div style="text-align: center; margin-top: 30px;">
+                    <p style="font-size: 14px; color: #777;">Need help? Contact our <a href="mailto:support@yourwebsite.com" style="color: #007bff; text-decoration: none;">Support Team</a></p>
+                </div>
+            </div>
+        `;
 
         await sendEmail(user.email, subject, text, html);
 

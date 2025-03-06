@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 exports.sendEmail = async (to, subject, text, html) => {
     try {
         await transporter.sendMail({
-            from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+            from: `"COSMIC GAME LOGIC" <${process.env.EMAIL_USER}>`,
             to,
             subject,
             text,
