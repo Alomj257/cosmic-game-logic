@@ -176,7 +176,22 @@ exports.resetPassword = async (req, res) => {
         // Send Success Email
         const subject = "Password Reset Successful";
         const text = `Your password has been reset successfully.`;
-        const html = `<p>Your password has been <strong>reset successfully</strong>.</p>`;
+        const html = `
+            <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #f9f9f9;">
+                <div style="text-align: center; padding-bottom: 20px;">
+                    <h2 style="color: #333;">Password Reset Confirmation</h2>
+                </div>
+                <p style="font-size: 16px; color: #555;">Hello <strong>${user.firstName || 'User'}</strong>,</p>
+                <p style="font-size: 16px; color: #555;">Your password has been <strong>reset successfully</strong>. You can now log in with your new password.</p>
+                <p style="font-size: 16px; color: #555;">If you did not initiate this change, please contact our support team immediately.</p>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="https://yourwebsite.com/login" style="display: inline-block; padding: 12px 20px; font-size: 16px; font-weight: bold; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Login Now</a>
+                </div>
+                <p style="font-size: 14px; color: #777; margin-top: 20px; text-align: center;">
+                    Need help? Contact our <a href="mailto:support@yourwebsite.com" style="color: #007bff; text-decoration: none;">Support Team</a>.
+                </p>
+            </div>
+        `;
 
         await sendEmail(user.email, subject, text, html);
 
@@ -186,4 +201,3 @@ exports.resetPassword = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
