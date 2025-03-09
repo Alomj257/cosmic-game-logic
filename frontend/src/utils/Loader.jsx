@@ -1,9 +1,9 @@
-import React from 'react'
+import { Spin } from "antd";
 
-const Loader = () => {
-  return (
-    <div>Loader</div>
-  )
-}
+const Loader = () => (
+  <div className="flex justify-center items-center h-screen">
+    <Spin size="large" />
+  </div>
+);
 
-export default Loader
+export default Loader;

@@ -1,8 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../services/api";
-import jwtDecode from "jwt-decode";
-import toast from "react-hot-toast";
+import API from "../services/api";
+import { toast } from "react-hot-toast";
 
 export const AuthContext = createContext();
 
@@ -13,26 +12,30 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decoded = jwtDecode(token);
-      setUser(decoded);
+      API.get("/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => setUser(res.data.user))
+        .catch(() => logout());
     }
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (credentials) => {
     try {
-      const { data } = await axios.post("/auth/login", { email, password });
-      localStorage.setItem("token", data.token);
-      setUser(jwtDecode(data.token));
-      toast.success("Login successful!");
-      navigate(data.user.userType === "ADMIN" ? "/admin" : "/dashboard");
+      const res = await API.post("/user/login", credentials);
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      toast.success("Login Successful");
+      navigate(res.data.user.userType === "ADMIN" ? "/admin" : "/dashboard");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login Failed");
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    toast.success("Logged Out");
     navigate("/login");
   };
 
