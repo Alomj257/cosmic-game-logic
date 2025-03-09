@@ -5,4 +5,6 @@ const API = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+export const registerUser = (userData) => API.post("/user/register", userData);
+
 export default API;

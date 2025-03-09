@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Input, Button, Select } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import registerImage from "../../assets/login_image.png";
 import logo from "../../assets/CGL.png";
+import { registerUser } from "../../services/api";
+import { toast } from "react-hot-toast";
 
 const { Option } = Select;
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -25,10 +28,15 @@ const Register = () => {
     setFormData({ ...formData, userType: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register Data:", formData);
-    // Handle API request here
+    try {
+      const response = await registerUser(formData);
+      toast.success(response.data.message || "Registration Successful");
+      navigate("/login"); // Redirect to login page
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Registration failed");
+    }
   };
 
   return (
@@ -36,11 +44,7 @@ const Register = () => {
       <div className="bg-white shadow-lg rounded-md flex w-full h-full overflow-hidden">
         {/* Left Side - Image */}
         <div className="w-1/2 h-full hidden md:block">
-          <img
-            src={registerImage}
-            alt="Register Illustration"
-            className="w-full h-full object-cover"
-          />
+          <img src={registerImage} alt="Register Illustration" className="w-full h-full object-cover" />
         </div>
 
         {/* Right Side - Registration Form */}
