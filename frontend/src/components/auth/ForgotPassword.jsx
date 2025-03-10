@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Input, Button } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import axios from "../../services/api";
+import axios from "../../services/api"; // Axios instance
 import forgotImage from "../../assets/login_image.png";
 import logo from "../../assets/CGL.png";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,6 +19,7 @@ const ForgotPassword = () => {
       setLoading(true);
       const { data } = await axios.post("/user/forgot-password", { email });
       toast.success(data.message || "OTP sent to your email");
+      navigate("/confirm-otp", { state: { email } }); // Redirect with email
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
