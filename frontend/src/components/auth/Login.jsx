@@ -23,11 +23,7 @@ const Login = () => {
       <div className="bg-white shadow-lg rounded-md flex w-full h-full overflow-hidden">
         {/* Left Side - Image */}
         <div className="w-1/2 h-full hidden md:block">
-          <img
-            src={loginImage}
-            alt="Login Illustration"
-            className="w-full h-full object-cover"
-          />
+          <img src={loginImage} alt="Login Illustration" className="w-full h-full object-cover" />
         </div>
         
         {/* Right Side - Login Form */}
@@ -37,6 +33,7 @@ const Login = () => {
           </div>
           <h2 className="text-2xl font-bold mb-2 text-center">Welcome to CGL</h2>
           <p className="text-center text-gray-600 mb-6">Login to access your dashboard</p>
+          
           <form onSubmit={handleSubmit} className="w-3/4 max-w-sm">
             <Input
               name="email"
@@ -54,10 +51,19 @@ const Login = () => {
               onChange={handleChange}
               required
             />
+
+            {/* Forgot Password Link */}
+            <div className="flex justify-end mb-4">
+              <Link to="/forgot-password" className="text-blue-600 text-sm font-semibold hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
+
             <Button type="primary" htmlType="submit" block size="large">
               Login
             </Button>
           </form>
+
           <p className="text-center mt-4">
             Don't have an account? <Link to="/register" className="text-blue-600 font-semibold">Register here</Link>
           </p>
