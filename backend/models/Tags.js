@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const tagsSchema = new mongoose.Schema(
     {
@@ -6,23 +6,31 @@ const tagsSchema = new mongoose.Schema(
             type: String,
             required: true,
             enum: [
-                "BON",  // Book No
-                "BOT",  // Book Text
-                "CHN",  // Chapter No
-                "CHT",  // Chapter Text
-                "HN",   // Heading No
-                "HT",   // Heading Text
-                "SHN",  // Section No
-                "SHT",  // Section Text
-                "SSHN", // Sub-Section No
-                "SSHT" // Sub-Section Text
+                "BKN",  // Book Name
+                "BKT",  // Book Text
+                "BKT_para",  // Book Text Additional Para
+                "BKT_Last",  // Book Text Additional Para Last Para
+                "CHNo",  // Chapter No
+                "CN",  // Chapter Name
+                "CH",  // Chapter Heading
+                "SHRed",  // Sub Heading 1 Red
+                "SHBlue",  // Sub Heading 1 Blue
+                "SH2",  // Sub Heading 2
+                "SH3",  // Sub Heading 3
+                "SH4",  // Sub Heading 4
+                "LT1",  // Listings Type 1
+                "LT2",  // Listings Type 2
+                "LT3",  // Listings Type 3
+                "LT4",  // Listings Type 4
+                "COM",  // Comments
+                "Slides"  // Slides
             ],
-            index: true, // Optimized for fast queries
+            index: true,
         },
         tagMainId: {
             type: String,
             unique: true,
-            required: true,
+            required: false,
         },
         openingTag: {
             type: String,
@@ -52,10 +60,9 @@ const tagsSchema = new mongoose.Schema(
 tagsSchema.pre("save", async function (next) {
     if (!this.isNew) return next();
 
-    const prefix = this.dataTypeCode; // Prefix based on group type
+    const prefix = this.dataTypeCode;
 
     try {
-        // Find the last tag in the same dataTypeCode group
         const lastTag = await mongoose
             .model("Tags")
             .findOne({ dataTypeCode: prefix })
@@ -63,11 +70,13 @@ tagsSchema.pre("save", async function (next) {
             .select("tagMainId")
             .lean();
 
-        let newIdNumber = 1.00; // Default starting ID
+        let newIdNumber;
 
         if (lastTag) {
             const lastNumber = parseFloat(lastTag.tagMainId.replace(prefix, ""));
             newIdNumber = (lastNumber + 2).toFixed(2);
+        } else {
+            newIdNumber = "1.00";
         }
 
         this.tagMainId = `${prefix}${newIdNumber}`;
@@ -77,5 +86,5 @@ tagsSchema.pre("save", async function (next) {
     }
 });
 
-const Tags = mongoose.model("Tags", tagsSchema);
-export default Tags;
+
+module.exports = mongoose.model("Tags", tagsSchema);

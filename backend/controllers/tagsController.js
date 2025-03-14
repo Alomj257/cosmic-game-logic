@@ -1,102 +1,106 @@
-const Tags = require("../models/Tags");
+const Tag = require("../models/Tags");
 
 // ✅ Create a new tag
 exports.createTag = async (req, res) => {
-    try {
-        const { dataTypeCode, openingTag, closingTag, isDefault } = req.body;
+  try {
+    const { dataTypeCode, openingTag, closingTag, isDefault } = req.body;
 
-        if (!dataTypeCode || !openingTag || !closingTag) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        // If isDefault is true, update all other tags of the same type to false
-        if (isDefault) {
-            await Tags.updateMany({ dataTypeCode, isDefault: true }, { isDefault: false });
-        }
-
-        const newTag = new Tags({ dataTypeCode, openingTag, closingTag, isDefault });
-        await newTag.save();
-
-        res.status(201).json({ message: "Tag created successfully", tag: newTag });
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message });
+    if (!dataTypeCode || !openingTag || !closingTag) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+
+    const newTag = new Tag({ dataTypeCode, openingTag, closingTag, isDefault });
+    await newTag.save();
+
+    res.status(201).json({ message: "Tag created successfully", tag: newTag });
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
 };
 
-// ✅ Update an existing tag
-exports.updateTag = async (req, res) => {
-    try {
-        const { _id, dataTypeCode, openingTag, closingTag, isDefault } = req.body;
+// ✅ Get all tags
+exports.getAllTags = async (req, res) => {
+  try {
+    const tags = await Tag.find();
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
 
-        const existingTag = await Tags.findById(_id);
-        if (!existingTag) {
-            return res.status(404).json({ message: "Tag not found" });
-        }
+// ✅ Get tags by dataTypeCode
+exports.getTagsByDataType = async (req, res) => {
+  try {
+    const { dataTypeCode } = req.params;
+    const tags = await Tag.find({ dataTypeCode });
 
-        if (isDefault) {
-            await Tags.updateMany({ dataTypeCode, isDefault: true, _id: { $ne: _id } }, { isDefault: false });
-        }
-
-        existingTag.dataTypeCode = dataTypeCode;
-        existingTag.openingTag = openingTag;
-        existingTag.closingTag = closingTag;
-        existingTag.isDefault = isDefault;
-
-        await existingTag.save();
-        res.status(200).json({ message: "Tag updated successfully", tag: existingTag });
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message });
+    if (!tags.length) {
+      return res.status(404).json({ message: "No tags found for this dataTypeCode" });
     }
+
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// ✅ Get tag by ID
+exports.getTagById = async (req, res) => {
+  try {
+    const tag = await Tag.findById(req.params.id);
+    if (!tag) {
+      return res.status(404).json({ message: "Tag not found" });
+    }
+    res.status(200).json(tag);
+  } catch (error) {
+    console.error("Error fetching tag:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// ✅ Update a tag
+exports.updateTag = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dataTypeCode, openingTag, closingTag, isDefault } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Tag ID is required" });
+    }
+
+    const updatedTag = await Tag.findByIdAndUpdate(
+      id,
+      { dataTypeCode, openingTag, closingTag, isDefault },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedTag) {
+      return res.status(404).json({ message: "Tag not found" });
+    }
+
+    res.status(200).json({ message: "Tag updated successfully", tag: updatedTag });
+  } catch (error) {
+    console.error("Error updating tag:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
 };
 
 // ✅ Delete a tag
 exports.deleteTag = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const existingTag = await Tags.findById(id);
-        if (!existingTag) {
-            return res.status(404).json({ message: "Tag not found" });
-        }
+  try {
+    const { id } = req.params;
+    const deletedTag = await Tag.findByIdAndDelete(id);
 
-        await Tags.findByIdAndDelete(id);
-        res.status(200).json({ message: "Tag deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message });
+    if (!deletedTag) {
+      return res.status(404).json({ message: "Tag not found" });
     }
-};
 
-// ✅ Get all tags
-exports.getTags = async (req, res) => {
-    try {
-        const tags = await Tags.find();
-        res.status(200).json(tags);
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-};
-
-// ✅ Get all tags by `dataTypeCode`
-exports.getTagsByType = async (req, res) => {
-    try {
-        const { dataTypeCode } = req.params;
-        const tags = await Tags.find({ dataTypeCode }).select("_id openingTag closingTag isDefault");
-
-        res.status(200).json(tags);
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-};
-
-// ✅ Get a single tag by ID
-exports.getTagById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const tag = await Tags.findById(id);
-        if (!tag) {
-            return res.status(404).json({ message: "Tag not found" });
-        }
-        res.status(200).json(tag);
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message });
-    }
+    res.status(200).json({ message: "Tag deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
 };

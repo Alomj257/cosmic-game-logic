@@ -1,20 +1,13 @@
 const express = require("express");
-const { 
-    createTag, 
-    updateTag, 
-    deleteTag, 
-    getTags, 
-    getTagsByType, 
-    getTagById 
-} = require("../controllers/tagsController");
-
 const router = express.Router();
+const tagController = require("../controllers/tagsController");
 
-router.post("/create", createTag);
-router.put("/update", updateTag);
-router.delete("/delete/:id", deleteTag);
-router.get("/list", getTags);
-router.get("/list/:dataTypeCode", getTagsByType);
-router.get("/:id", getTagById);
+// API Routes
+router.post("/create", tagController.createTag);
+router.get("/list", tagController.getAllTags);
+router.get("/list/:dataTypeCode", tagController.getTagsByDataType);
+router.get("/:id", tagController.getTagById);
+router.put("/update/:id", tagController.updateTag);
+router.delete("/delete/:id", tagController.deleteTag);
 
 module.exports = router;
