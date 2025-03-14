@@ -61,6 +61,44 @@ exports.getTagById = async (req, res) => {
   }
 };
 
+// ✅ Get all tagMainId values for a given dataTypeCode
+exports.getTagMainIdsByDataType = async (req, res) => {
+  try {
+    const { dataTypeCode } = req.params;
+
+    const tags = await Tag.find({ dataTypeCode }).select("tagMainId");
+
+    if (!tags.length) {
+      return res.status(404).json({ message: "No tags found for this dataTypeCode" });
+    }
+
+    const tagMainIds = tags.map(tag => tag.tagMainId);
+
+    res.status(200).json(tagMainIds);
+  } catch (error) {
+    console.error("Error fetching tagMainIds:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// ✅ Get opening and closing tag for a specific tagMainId
+exports.getTagDetailsByTagMainId = async (req, res) => {
+  try {
+    const { tagMainId } = req.params;
+
+    const tag = await Tag.findOne({ tagMainId }).select("openingTag closingTag");
+
+    if (!tag) {
+      return res.status(404).json({ message: "Tag not found for this tagMainId" });
+    }
+
+    res.status(200).json(tag);
+  } catch (error) {
+    console.error("Error fetching tag details:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
 // ✅ Update a tag
 exports.updateTag = async (req, res) => {
   try {
