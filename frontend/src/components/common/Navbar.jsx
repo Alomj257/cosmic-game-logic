@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Avatar, Dropdown, Menu } from "antd";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
-import DrawerComponent from "../../utils/DrawerComponent"; // Import the drawer
+import DrawerComponent from "../../utils/DrawerComponent";
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
