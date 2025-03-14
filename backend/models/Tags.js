@@ -38,10 +38,10 @@ const tagsSchema = new mongoose.Schema(
         },
     },
     {
-        timestamps: true, // Auto-adds createdAt & updatedAt
+        timestamps: true,
         toJSON: {
             transform(doc, ret) {
-                delete ret.__v; // Removes version key for cleaner API responses
+                delete ret.__v;
                 return ret;
             },
         },
