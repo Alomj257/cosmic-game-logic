@@ -1,5 +1,4 @@
 const Book = require("../models/Book");
-const Tag = require("../models/Tags");
 
 // Auto Increment Logic
 const getNextRecordNumber = async () => {
@@ -11,12 +10,12 @@ const getNextRecordNumber = async () => {
     return "1.00";
 };
 
-// Create New Book
+// Create Book
 exports.createBook = async (req, res) => {
     try {
-        const { auto, recordNumber, bookNumber, groupType, tagMainId, tagVersionHId, tagVersionEId, name, briefIntroduction, authorNotes } = req.body;
+        const { auto, recordNumber, bookNumber, groupType, tagMainVersionId, tagVersionHId, tagVersionEId, bookName, briefIntroduction, authorNotes } = req.body;
 
-        // Handle Auto/Manual record number
+        // Auto-increment logic
         let newRecordNumber = recordNumber;
         if (auto) {
             newRecordNumber = await getNextRecordNumber();
@@ -26,10 +25,10 @@ exports.createBook = async (req, res) => {
             recordNumber: newRecordNumber,
             bookNumber: newRecordNumber,
             groupType,
-            tagMainId,
+            tagMainVersionId,
             tagVersionHId,
             tagVersionEId,
-            name,
+            bookName,
             briefIntroduction,
             authorNotes
         });
@@ -45,7 +44,7 @@ exports.createBook = async (req, res) => {
 // Get All Books
 exports.getAllBooks = async (req, res) => {
     try {
-        const books = await Book.find().populate("groupType");
+        const books = await Book.find();
         res.status(200).json(books);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -55,7 +54,7 @@ exports.getAllBooks = async (req, res) => {
 // Get Book by ID
 exports.getBookById = async (req, res) => {
     try {
-        const book = await Book.findById(req.params.id).populate("groupType");
+        const book = await Book.findById(req.params.id);
         if (!book) {
             return res.status(404).json({ message: "Book not found" });
         }
@@ -68,11 +67,16 @@ exports.getBookById = async (req, res) => {
 // Update Book
 exports.updateBook = async (req, res) => {
     try {
-        const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updatedData = { ...req.body };
+
+        const book = await Book.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+
         if (!book) {
             return res.status(404).json({ message: "Book not found" });
         }
+
         res.status(200).json({ message: "Book updated successfully", book });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -86,17 +90,6 @@ exports.deleteBook = async (req, res) => {
             return res.status(404).json({ message: "Book not found" });
         }
         res.status(200).json({ message: "Book deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// Fetch tags based on group type
-exports.getTagsByGroupType = async (req, res) => {
-    try {
-        const { groupType } = req.params;
-        const tags = await Tag.find({ dataTypeCode: groupType });
-        res.status(200).json(tags);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

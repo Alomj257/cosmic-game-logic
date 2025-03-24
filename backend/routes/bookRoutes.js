@@ -9,7 +9,4 @@ router.get("/:id", bookController.getBookById);
 router.put("/update/:id", bookController.updateBook);
 router.delete("/delete/:id", bookController.deleteBook);
 
-// Route to fetch tags based on group type
-router.get("/tags/:groupType", bookController.getTagsByGroupType);
-
 module.exports = router;

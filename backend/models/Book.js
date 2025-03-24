@@ -3,19 +3,18 @@ const mongoose = require("mongoose");
 const bookSchema = new mongoose.Schema(
     {
         recordNumber: {
-            type: String,    // Auto or Manual numbering
+            type: String,     // Auto or Manual numbering
             required: true
         },
         bookNumber: {
-            type: String,    // Same as record number
+            type: String,     // Auto or Manual numbering
             required: true
         },
-        groupType: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Tags",
+        groupType: {          // dataTypesCode
+            type: String,
             required: true
         },
-        tagMainId: {
+        tagMainVersionId: {   // tagMainId
             type: String,
             required: true
         },
@@ -27,7 +26,7 @@ const bookSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        name: {
+        bookName: {
             type: String,
             required: true
         },
