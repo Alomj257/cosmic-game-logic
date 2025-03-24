@@ -1,29 +1,17 @@
 const Book = require("../models/Book");
-
-// Auto Increment Logic
-const getNextRecordNumber = async () => {
-    const lastBook = await Book.findOne().sort({ createdAt: -1 });
-    if (lastBook) {
-        const lastNumber = parseFloat(lastBook.recordNumber);
-        return (lastNumber + 2).toFixed(2);  // Increment by 2.00
-    }
-    return "1.00";
-};
+const { generateBookNumbers } = require("../helpers/bookHelpers");
 
 // Create Book
 exports.createBook = async (req, res) => {
     try {
         const { auto, recordNumber, bookNumber, groupType, tagMainVersionId, tagVersionHId, tagVersionEId, bookName, briefIntroduction, authorNotes } = req.body;
 
-        // Auto-increment logic
-        let newRecordNumber = recordNumber;
-        if (auto) {
-            newRecordNumber = await getNextRecordNumber();
-        }
+        // Generate auto or manual numbers
+        const { finalRecordNumber, finalBookNumber } = await generateBookNumbers(auto, recordNumber, bookNumber);
 
         const newBook = new Book({
-            recordNumber: newRecordNumber,
-            bookNumber: newRecordNumber,
+            recordNumber: finalRecordNumber,
+            bookNumber: finalBookNumber,
             groupType,
             tagMainVersionId,
             tagVersionHId,
@@ -67,9 +55,7 @@ exports.getBookById = async (req, res) => {
 // Update Book
 exports.updateBook = async (req, res) => {
     try {
-        const updatedData = { ...req.body };
-
-        const book = await Book.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+        const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
         if (!book) {
             return res.status(404).json({ message: "Book not found" });
