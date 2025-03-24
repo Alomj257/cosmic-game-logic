@@ -39,7 +39,7 @@ exports.getAllBooks = async (req, res) => {
     }
 };
 
-// ✅ New function: Get only book names
+// Get only book names
 exports.getBookNamesOnly = async (req, res) => {
     try {
         const bookNames = await Book.find().select("bookName -_id");  // Select only the bookName field
