@@ -160,7 +160,7 @@ const Formatting = () => {
               type="checkbox"
               checked={isDefault}
               onChange={(e) => setIsDefault(e.target.checked)}
-              className="w-5 h-5 border-2 border-green-800 rounded bg-white checked:bg-green-800 "
+              className="w-5 h-5 border-2 border-green-800 rounded bg-white checked:bg-green-800 focus:outline-none"
             />
           </div>
         </div>
