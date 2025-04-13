@@ -31,7 +31,7 @@ const Navbar = () => {
     return (
         <>
             {/* Navbar */}
-            <nav className="bg-gradient-to-b from-yellow-700 via-brown-500 to-black text-white py-4 px-6 flex justify-between items-center shadow-md">
+            <nav className="bg-gradient-to-b from-yellow-700 via-brown-300 to-black text-white py-3 px-6 flex justify-between items-center shadow-md">
                 {/* Logo */}
                 <div className="text-2xl font-bold">
                     <Link to="/" className="hover:text-gray-300 transition">CGL</Link>
