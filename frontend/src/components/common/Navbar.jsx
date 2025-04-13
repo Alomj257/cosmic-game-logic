@@ -38,29 +38,29 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className="sticky top-0 z-50 bg-gray-900 text-white h-[64px] px-10 flex justify-between items-center shadow-md">
+            <nav className="sticky top-0 z-50 bg-gray-900 text-gray-300 h-[64px] px-10 flex justify-between items-center shadow-md">
                 {/* Logo */}
                 <div className="text-2xl font-bold tracking-wide">
-                    <Link to="/" className="hover:text-gray-300 transition">CGL</Link>
+                    <Link to="/" className="hover:text-gray-100 transition">CGL</Link>
                 </div>
 
                 {/* Navigation Links */}
                 <div className="hidden md:flex items-center gap-12 text-base font-bold">
-                    <Link to="/read" className="flex items-center gap-2 hover:text-gray-300 transition">
+                    <Link to="/read" className="flex items-center gap-2 hover:text-gray-100 transition">
                         <ReadOutlined /> <span>Read</span>
                     </Link>
                     {user.userType === "ADMIN" && (
-                        <Link to="/write" className="flex items-center gap-2 hover:text-gray-300 transition">
+                        <Link to="/write" className="flex items-center gap-2 hover:text-gray-100 transition">
                             <EditOutlined /> <span>Write</span>
                         </Link>
                     )}
-                    <Link to="/database" className="flex items-center gap-2 hover:text-gray-300 transition">
+                    <Link to="/database" className="flex items-center gap-2 hover:text-gray-100 transition">
                         <DatabaseOutlined /> <span>Database</span>
                     </Link>
-                    <Link to="/about" className="flex items-center gap-2 hover:text-gray-300 transition">
+                    <Link to="/about" className="flex items-center gap-2 hover:text-gray-100 transition">
                         <ProfileOutlined /> <span>About</span>
                     </Link>
-                    <Link to="/contact" className="flex items-center gap-2 hover:text-gray-300 transition">
+                    <Link to="/contact" className="flex items-center gap-2 hover:text-gray-100 transition">
                         <CustomerServiceOutlined /> <span>Contact</span>
                     </Link>
                 </div>
@@ -72,6 +72,7 @@ const Navbar = () => {
                     </Avatar>
                 </Dropdown>
             </nav>
+
 
             <DrawerComponent open={openDrawer} onClose={() => setOpenDrawer(false)} user={user} />
         </>
