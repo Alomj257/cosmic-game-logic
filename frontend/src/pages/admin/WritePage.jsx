@@ -1,39 +1,104 @@
 import React, { useState } from "react";
+import { Tabs } from "antd";
+import {
+  BookOutlined,
+  FileTextOutlined,
+  OrderedListOutlined,
+  ApartmentOutlined,
+  AlignLeftOutlined,
+  BgColorsOutlined,
+  UploadOutlined
+} from "@ant-design/icons";
+
+import Book from "../../components/bookwork/write/Book";
+import Chapter from "../../components/bookwork/write/Chapter";
+import Heading from "../../components/bookwork/write/Heading";
+import SubHeading from "../../components/bookwork/write/SubHeading";
+import SubSubHeading from "../../components/bookwork/write/SubSubHeading";
+import Formatting from "../../components/bookwork/write/Formatting";
+import UploadImage from "../../components/bookwork/write/UploadImage";
 
 const WritePage = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [activeKey, setActiveKey] = useState("book");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Call API to save book/post here
-    console.log("Submitted:", { title, content });
-  };
+  const items = [
+    {
+      key: "book",
+      label: (
+        <span>
+          <BookOutlined /> Book
+        </span>
+      ),
+      children: <Book />,
+    },
+    {
+      key: "chapter",
+      label: (
+        <span>
+          <FileTextOutlined /> Chapter
+        </span>
+      ),
+      children: <Chapter />,
+    },
+    {
+      key: "heading",
+      label: (
+        <span>
+          <OrderedListOutlined /> Heading
+        </span>
+      ),
+      children: <Heading />,
+    },
+    {
+      key: "subheading",
+      label: (
+        <span>
+          <ApartmentOutlined /> S. Heading
+        </span>
+      ),
+      children: <SubHeading />,
+    },
+    {
+      key: "subsubheading",
+      label: (
+        <span>
+          <AlignLeftOutlined /> S.S. Heading
+        </span>
+      ),
+      children: <SubSubHeading />,
+    },
+    {
+      key: "formatting",
+      label: (
+        <span>
+          <BgColorsOutlined /> Create Formatting
+        </span>
+      ),
+      children: <Formatting />,
+    },
+    {
+      key: "upload",
+      label: (
+        <span>
+          <UploadOutlined /> Upload Image
+        </span>
+      ),
+      children: <UploadImage />,
+    },
+  ];
 
   return (
-    <div className="p-8 max-w-3xl mx-auto bg-white rounded-lg shadow-md mt-6">
-      <h2 className="text-2xl font-bold mb-6">Write a New Book</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Book Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <textarea
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={10}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <button type="submit" className="bg-yellow-700 text-white px-6 py-2 rounded hover:bg-yellow-800">
-          Publish
-        </button>
-      </form>
+    <div className="p-0">
+      <Tabs
+        activeKey={activeKey}
+        onChange={(key) => setActiveKey(key)}
+        type="line"
+        tabPosition="top"
+        className="bg-white p-4 rounded shadow"
+        size="large"
+        animated
+        items={items}
+      />
     </div>
   );
 };
