@@ -34,7 +34,7 @@ const App = () => {
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
 
             <Route
-              path="admin/write"
+              path="/write"
               element={
                 <ProtectedRoute>
                   <WritePage />

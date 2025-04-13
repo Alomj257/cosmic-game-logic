@@ -41,7 +41,7 @@ const Navbar = () => {
                 <div className="hidden md:flex space-x-6 text-lg">
                     <Link to="/read" className="hover:text-gray-300 transition">Read</Link>
                     {user.userType === "ADMIN" && (
-                        <Link to="/admin/write" className="hover:text-gray-300 transition">Write</Link>
+                        <Link to="/write" className="hover:text-gray-300 transition">Write</Link>
                     )}
                     <Link to="/about" className="hover:text-gray-300 transition">About</Link>
                     <Link to="/contact" className="hover:text-gray-300 transition">Contact Us</Link>
