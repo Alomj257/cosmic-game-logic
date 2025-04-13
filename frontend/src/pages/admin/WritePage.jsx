@@ -25,7 +25,7 @@ const WritePage = () => {
     {
       key: "book",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <BookOutlined /> Book
         </span>
       ),
@@ -34,7 +34,7 @@ const WritePage = () => {
     {
       key: "chapter",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <FileTextOutlined /> Chapter
         </span>
       ),
@@ -43,7 +43,7 @@ const WritePage = () => {
     {
       key: "heading",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <OrderedListOutlined /> Heading
         </span>
       ),
@@ -52,7 +52,7 @@ const WritePage = () => {
     {
       key: "subheading",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <ApartmentOutlined /> S. Heading
         </span>
       ),
@@ -61,7 +61,7 @@ const WritePage = () => {
     {
       key: "subsubheading",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <AlignLeftOutlined /> S.S. Heading
         </span>
       ),
@@ -70,7 +70,7 @@ const WritePage = () => {
     {
       key: "formatting",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <BgColorsOutlined /> Formatting
         </span>
       ),
@@ -79,7 +79,7 @@ const WritePage = () => {
     {
       key: "upload",
       label: (
-        <span className="font-bold px-2 py-2 inline-flex items-center gap-2">
+        <span className="font-bold py-1 text-base inline-flex items-center gap-2">
           <UploadOutlined /> Upload
         </span>
       ),
@@ -90,7 +90,7 @@ const WritePage = () => {
   return (
     <div className="h-screen flex flex-col">
       {/* Sticky and padded Tabs header */}
-      <div className="sticky top-0 z-30 bg-white px-2 py-2 border-gray-200">
+      <div className="sticky top-0 z-30 bg-white px-10 py-2 border-gray-200">
         <Tabs
           activeKey={activeKey}
           onChange={(key) => setActiveKey(key)}

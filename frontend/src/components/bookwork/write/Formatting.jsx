@@ -5,13 +5,12 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import { toast } from "react-hot-toast";
 import {
   createTag,
   getAllTags,
   updateTag,
-  getTagById,
   deleteTag,
 } from "../../../services/api";
 
@@ -22,27 +21,12 @@ const Formatting = () => {
   const [isDefault, setIsDefault] = useState(false);
   const [formattingList, setFormattingList] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [deleteId, setDeleteId] = useState(null); // For storing the tag ID to be deleted
+  const [isModalVisible, setIsModalVisible] = useState(false); // For showing the modal
 
   // Enum options for data type codes
   const dataTypeOptions = [
-    "BKN",  // Book Name
-    "BKT",  // Book Text
-    "BKT_para",  // Book Text Additional Para
-    "BKT_Last",  // Book Text Additional Para Last Para
-    "CHNo",  // Chapter No
-    "CN",  // Chapter Name
-    "CH",  // Chapter Heading
-    "SHRed",  // Sub Heading 1 Red
-    "SHBlue",  // Sub Heading 1 Blue
-    "SH2",  // Sub Heading 2
-    "SH3",  // Sub Heading 3
-    "SH4",  // Sub Heading 4
-    "LT1",  // Listings Type 1
-    "LT2",  // Listings Type 2
-    "LT3",  // Listings Type 3
-    "LT4",  // Listings Type 4
-    "COM",  // Comments
-    "Slides"  // Slides
+    "BKN", "BKT", "BKT_para", "BKT_Last", "CHNo", "CN", "CH", "SHRed", "SHBlue", "SH2", "SH3", "SH4", "LT1", "LT2", "LT3", "LT4", "COM", "Slides"
   ];
 
   const fetchTags = async () => {
@@ -100,14 +84,25 @@ const Formatting = () => {
     setEditId(tag._id);
   };
 
-  const handleDelete = async (id) => {
+  const showDeleteModal = (id) => {
+    setDeleteId(id); // Store the ID of the tag to be deleted
+    setIsModalVisible(true); // Show the modal
+  };
+
+  const handleDelete = async () => {
     try {
-      await deleteTag(id);
+      await deleteTag(deleteId); // Delete the tag using the ID stored in deleteId
       toast.success("Formatting deleted successfully");
       fetchTags();
+      setIsModalVisible(false); // Close the modal after deletion
     } catch (err) {
       toast.error("Failed to delete formatting");
+      setIsModalVisible(false); // Close the modal even if deletion fails
     }
+  };
+
+  const handleCancelModal = () => {
+    setIsModalVisible(false); // Close the modal without deleting
   };
 
   return (
@@ -216,7 +211,7 @@ const Formatting = () => {
                   />
                   <DeleteOutlined
                     className="text-red-600 cursor-pointer"
-                    onClick={() => handleDelete(item._id)}
+                    onClick={() => showDeleteModal(item._id)}
                   />
                 </td>
               </tr>
@@ -231,6 +226,24 @@ const Formatting = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Confirm Deletion"
+        visible={isModalVisible}
+        onOk={handleDelete}
+        onCancel={handleCancelModal}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{
+          className: "bg-green-600 hover:bg-green-700 text-white",
+        }}
+        cancelButtonProps={{
+          className: "border border-green-700 text-green-700",
+        }}
+      >
+        <p>Are you sure you want to delete this formatting?</p>
+      </Modal>
     </div>
   );
 };
