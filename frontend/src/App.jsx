@@ -13,6 +13,8 @@ const ResetPassword = lazy(() => import("./components/auth/ResetPassword"));
 const ConfirmOtp = lazy(() => import("./components/auth/ConfirmOtp"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
+const WritePage = lazy(() => import("./pages/admin/WritePage"));
+
 
 const App = () => {
   return (
@@ -30,6 +32,16 @@ const App = () => {
             <Route path="/confirm-otp" element={<ConfirmOtp />} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+
+            <Route
+              path="admin/write"
+              element={
+                <ProtectedRoute>
+                  <WritePage />
+                </ProtectedRoute>
+              }
+            />
+
           </Routes>
         </Suspense>
       </AuthProvider>
