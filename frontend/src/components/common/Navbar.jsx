@@ -2,7 +2,15 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Avatar, Dropdown, Menu } from "antd";
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import {
+    LogoutOutlined,
+    UserOutlined,
+    ReadOutlined,
+    EditOutlined,
+    DatabaseOutlined,
+    ProfileOutlined,
+    CustomerServiceOutlined,
+} from "@ant-design/icons";
 import DrawerComponent from "../../utils/DrawerComponent";
 
 const Navbar = () => {
@@ -30,32 +38,41 @@ const Navbar = () => {
 
     return (
         <>
-            {/* Navbar */}
-            <nav className="bg-gradient-to-b from-yellow-700 via-brown-300 to-black text-white py-3 px-6 flex justify-between items-center shadow-md">
+            <nav className="sticky top-0 z-50 bg-gray-900 text-white h-[64px] px-10 flex justify-between items-center shadow-md">
                 {/* Logo */}
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold tracking-wide">
                     <Link to="/" className="hover:text-gray-300 transition">CGL</Link>
                 </div>
 
                 {/* Navigation Links */}
-                <div className="hidden md:flex space-x-6 text-lg">
-                    <Link to="/read" className="hover:text-gray-300 transition">Read</Link>
+                <div className="hidden md:flex items-center gap-12 text-base font-bold">
+                    <Link to="/read" className="flex items-center gap-2 hover:text-gray-300 transition">
+                        <ReadOutlined /> <span>Read</span>
+                    </Link>
                     {user.userType === "ADMIN" && (
-                        <Link to="/write" className="hover:text-gray-300 transition">Write</Link>
+                        <Link to="/write" className="flex items-center gap-2 hover:text-gray-300 transition">
+                            <EditOutlined /> <span>Write</span>
+                        </Link>
                     )}
-                    <Link to="/about" className="hover:text-gray-300 transition">About</Link>
-                    <Link to="/contact" className="hover:text-gray-300 transition">Contact Us</Link>
+                    <Link to="/database" className="flex items-center gap-2 hover:text-gray-300 transition">
+                        <DatabaseOutlined /> <span>Database</span>
+                    </Link>
+                    <Link to="/about" className="flex items-center gap-2 hover:text-gray-300 transition">
+                        <ProfileOutlined /> <span>About</span>
+                    </Link>
+                    <Link to="/contact" className="flex items-center gap-2 hover:text-gray-300 transition">
+                        <CustomerServiceOutlined /> <span>Contact</span>
+                    </Link>
                 </div>
 
-                {/* Profile Avatar with Dropdown */}
+                {/* Avatar Dropdown */}
                 <Dropdown overlay={menu} placement="bottomRight">
-                    <Avatar className="cursor-pointer bg-brown-500 border-2 border-white shadow-lg" size={42}>
+                    <Avatar className="cursor-pointer bg-white border-1 text-black font-bold shadow-md" size={35}>
                         {user.firstName[0]}
                     </Avatar>
                 </Dropdown>
             </nav>
 
-            {/* Profile Drawer Component */}
             <DrawerComponent open={openDrawer} onClose={() => setOpenDrawer(false)} user={user} />
         </>
     );
