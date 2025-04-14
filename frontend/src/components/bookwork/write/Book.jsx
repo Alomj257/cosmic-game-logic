@@ -12,7 +12,7 @@ const Book = () => {
     const lines = notesInput.split('\n').filter(line => line.trim() !== '');
     setSavedNotes(lines);
   };
-  
+
   return (
     <div className="p-4 md:p-8 min-h-screen flex flex-col items-center gap-10">
       {/* CREATE NEW BOOK */}
@@ -233,7 +233,7 @@ const Book = () => {
           <div>
             <label className="block text-base font-bold text-green-900 mb-2">Write your notes</label>
             <textarea
-              rows="10"
+              rows="11"
               value={notesInput}
               onChange={(e) => setNotesInput(e.target.value)}
               className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white placeholder:font-normal placeholder:text-sm"
