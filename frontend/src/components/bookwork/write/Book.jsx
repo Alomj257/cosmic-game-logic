@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus, Hash, Settings } from 'lucide-react';
 import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId } from '../../../services/api';
+import HoverPopup from './HoverPopup';
 
 const Book = () => {
   const [recordMode, setRecordMode] = useState('auto');
@@ -144,7 +145,7 @@ const Book = () => {
                   <option key={index} value={id}>{id}</option>
                 ))}
               </select>
-              <input type="text" value={createOpeningTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
+              <HoverPopup value={createOpeningTag} />
             </div>
           </div>
 
@@ -152,7 +153,7 @@ const Book = () => {
           <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-center">
             <label className="block text-base font-bold text-green-900 text-center mb-10">End Tag</label>
             <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
-            <input type="text" value={createClosingTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
+            <HoverPopup value={createClosingTag} />
           </div>
         </div>
 
@@ -213,7 +214,7 @@ const Book = () => {
                   <option key={index} value={id}>{id}</option>
                 ))}
               </select>
-              <input type="text" value={briefOpeningTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
+              <HoverPopup value={briefOpeningTag} />
             </div>
           </div>
 
@@ -221,7 +222,7 @@ const Book = () => {
           <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-center">
             <label className="block text-base font-bold text-green-900 text-center mb-10">End Tag</label>
             <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
-            <input type="text" value={briefClosingTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
+            <HoverPopup value={briefClosingTag} />
           </div>
         </div>
 
