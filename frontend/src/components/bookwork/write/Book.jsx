@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus, Hash, Settings } from 'lucide-react';
-import { getAllTags } from '../../../services/api';
+import { getAllTags, getTagMainIdsByDataType } from '../../../services/api';
 
 const Book = () => {
   const [recordMode, setRecordMode] = useState('auto');
@@ -10,6 +10,13 @@ const Book = () => {
   const [savedNotes, setSavedNotes] = useState([]);
 
   const [groupTypes, setGroupTypes] = useState([]);
+
+  // Independent states for Create and Brief
+  const [createGroupType, setCreateGroupType] = useState('');
+  const [createTagMainIds, setCreateTagMainIds] = useState([]);
+
+  const [briefGroupType, setBriefGroupType] = useState('');
+  const [briefTagMainIds, setBriefTagMainIds] = useState([]);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -25,6 +32,34 @@ const Book = () => {
 
     fetchTags();
   }, []);
+
+  useEffect(() => {
+    const fetchCreateTagMainIds = async () => {
+      if (!createGroupType) return;
+      try {
+        const response = await getTagMainIdsByDataType(createGroupType);
+        setCreateTagMainIds(response.data);
+      } catch (error) {
+        console.error('Error fetching create tag main ids:', error);
+      }
+    };
+
+    fetchCreateTagMainIds();
+  }, [createGroupType]);
+
+  useEffect(() => {
+    const fetchBriefTagMainIds = async () => {
+      if (!briefGroupType) return;
+      try {
+        const response = await getTagMainIdsByDataType(briefGroupType);
+        setBriefTagMainIds(response.data);
+      } catch (error) {
+        console.error('Error fetching brief tag main ids:', error);
+      }
+    };
+
+    fetchBriefTagMainIds();
+  }, [briefGroupType]);
 
   const handleSaveNotes = () => {
     const lines = notesInput.split('\n').filter(line => line.trim() !== '');
@@ -80,14 +115,20 @@ const Book = () => {
               <span>Tag Version H. Id</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <select className="py-2 px-3 text-sm border border-green-600 rounded">
-                <option>Select Group</option>
+              <select
+                className="py-2 px-3 text-sm border border-green-600 rounded"
+                value={createGroupType}
+                onChange={(e) => setCreateGroupType(e.target.value)}
+              >
+                <option value="">Select Group</option>
                 {groupTypes.map((code, index) => (
                   <option key={index} value={code}>{code}</option>
                 ))}
               </select>
               <select className="py-2 px-3 text-sm border border-green-600 rounded">
-                <option>Tag Main</option>
+                {createTagMainIds.map((id, index) => (
+                  <option key={index} value={id}>{id}</option>
+                ))}
               </select>
               <select className="py-2 px-3 text-sm border border-green-600 rounded">
                 <option>Version H</option>
@@ -114,7 +155,6 @@ const Book = () => {
           />
         </div>
 
-        {/* Buttons Row 1 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
           <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
@@ -123,7 +163,6 @@ const Book = () => {
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review</button>
         </div>
 
-        {/* Buttons Row 2 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><FilePlus size={16} /> Create Book</button>
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Hash size={16} /> System Numbering</button>
@@ -154,14 +193,20 @@ const Book = () => {
               <span>Tag Version H. Id</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <select className="py-2 px-3 text-sm border border-green-600 rounded">
-                <option>Select Group</option>
+              <select
+                className="py-2 px-3 text-sm border border-green-600 rounded"
+                value={briefGroupType}
+                onChange={(e) => setBriefGroupType(e.target.value)}
+              >
+                <option value="">Select Group</option>
                 {groupTypes.map((code, index) => (
                   <option key={index} value={code}>{code}</option>
                 ))}
               </select>
               <select className="py-2 px-3 text-sm border border-green-600 rounded">
-                <option>Tag Main</option>
+                {briefTagMainIds.map((id, index) => (
+                  <option key={index} value={id}>{id}</option>
+                ))}
               </select>
               <select className="py-2 px-3 text-sm border border-green-600 rounded">
                 <option>Version H</option>
@@ -196,7 +241,6 @@ const Book = () => {
           </div>
         </div>
 
-        {/* Buttons */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
