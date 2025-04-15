@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus, Hash, Settings } from 'lucide-react';
-import { getAllTags, getTagMainIdsByDataType } from '../../../services/api';
+import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId } from '../../../services/api';
 
 const Book = () => {
   const [recordMode, setRecordMode] = useState('auto');
@@ -11,12 +11,19 @@ const Book = () => {
 
   const [groupTypes, setGroupTypes] = useState([]);
 
-  // Independent states for Create and Brief
+  // Create states
   const [createGroupType, setCreateGroupType] = useState('');
   const [createTagMainIds, setCreateTagMainIds] = useState([]);
+  const [createSelectedMainId, setCreateSelectedMainId] = useState('');
+  const [createOpeningTag, setCreateOpeningTag] = useState('');
+  const [createClosingTag, setCreateClosingTag] = useState('');
 
+  // Brief states
   const [briefGroupType, setBriefGroupType] = useState('');
   const [briefTagMainIds, setBriefTagMainIds] = useState([]);
+  const [briefSelectedMainId, setBriefSelectedMainId] = useState('');
+  const [briefOpeningTag, setBriefOpeningTag] = useState('');
+  const [briefClosingTag, setBriefClosingTag] = useState('');
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -61,6 +68,36 @@ const Book = () => {
     fetchBriefTagMainIds();
   }, [briefGroupType]);
 
+  useEffect(() => {
+    const fetchCreateTagDetails = async () => {
+      if (!createSelectedMainId) return;
+      try {
+        const response = await getTagDetailsByTagMainId(createSelectedMainId);
+        setCreateOpeningTag(response.data.openingTag);
+        setCreateClosingTag(response.data.closingTag);
+      } catch (error) {
+        console.error('Error fetching tag details for create:', error);
+      }
+    };
+
+    fetchCreateTagDetails();
+  }, [createSelectedMainId]);
+
+  useEffect(() => {
+    const fetchBriefTagDetails = async () => {
+      if (!briefSelectedMainId) return;
+      try {
+        const response = await getTagDetailsByTagMainId(briefSelectedMainId);
+        setBriefOpeningTag(response.data.openingTag);
+        setBriefClosingTag(response.data.closingTag);
+      } catch (error) {
+        console.error('Error fetching tag details for brief:', error);
+      }
+    };
+
+    fetchBriefTagDetails();
+  }, [briefSelectedMainId]);
+
   const handleSaveNotes = () => {
     const lines = notesInput.split('\n').filter(line => line.trim() !== '');
     setSavedNotes(lines);
@@ -77,32 +114,12 @@ const Book = () => {
           <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-between">
             <label className="block text-base font-bold text-green-900 mb-3">Select Record No</label>
             <div className="flex gap-4 mb-4">
-              <button
-                className={`px-5 py-2 text-sm font-bold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`}
-                onClick={() => setRecordMode('auto')}
-              >
-                Auto
-              </button>
-              <button
-                className={`px-5 py-2 text-sm font-bold border rounded ${recordMode === 'manual' ? 'bg-green-300' : 'bg-white'} border-green-600`}
-                onClick={() => setRecordMode('manual')}
-              >
-                Manual
-              </button>
+              <button className={`px-5 py-2 text-sm font-bold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`} onClick={() => setRecordMode('auto')}>Auto</button>
+              <button className={`px-5 py-2 text-sm font-bold border rounded ${recordMode === 'manual' ? 'bg-green-300' : 'bg-white'} border-green-600`} onClick={() => setRecordMode('manual')}>Manual</button>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                placeholder="Record No"
-                disabled={isDisabled}
-                className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600`}
-              />
-              <input
-                type="text"
-                placeholder="Book No"
-                disabled={isDisabled}
-                className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600`}
-              />
+              <input type="text" placeholder="Record No" disabled={isDisabled} className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600`} />
+              <input type="text" placeholder="Book No" disabled={isDisabled} className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600`} />
             </div>
           </div>
 
@@ -115,24 +132,19 @@ const Book = () => {
               <span>Tag Version H. Id</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <select
-                className="py-2 px-3 text-sm border border-green-600 rounded"
-                value={createGroupType}
-                onChange={(e) => setCreateGroupType(e.target.value)}
-              >
+              <select className="py-2 px-3 text-sm border border-green-600 rounded" value={createGroupType} onChange={(e) => setCreateGroupType(e.target.value)}>
                 <option value="">Select Group</option>
                 {groupTypes.map((code, index) => (
                   <option key={index} value={code}>{code}</option>
                 ))}
               </select>
-              <select className="py-2 px-3 text-sm border border-green-600 rounded">
+              <select className="py-2 px-3 text-sm border border-green-600 rounded" value={createSelectedMainId} onChange={(e) => setCreateSelectedMainId(e.target.value)}>
+                <option value="">Select Tag Main Id</option>
                 {createTagMainIds.map((id, index) => (
                   <option key={index} value={id}>{id}</option>
                 ))}
               </select>
-              <select className="py-2 px-3 text-sm border border-green-600 rounded">
-                <option>Version H</option>
-              </select>
+              <input type="text" value={createOpeningTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
             </div>
           </div>
 
@@ -140,21 +152,17 @@ const Book = () => {
           <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-center">
             <label className="block text-base font-bold text-green-900 text-center mb-10">End Tag</label>
             <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
-            <select className="py-2 px-3 text-sm border border-green-600 rounded">
-              <option>Version E</option>
-            </select>
+            <input type="text" value={createClosingTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
           </div>
         </div>
 
+        {/* Book Name */}
         <div className="mb-6">
           <label className="font-bold text-base text-green-900 block mb-2">Name of the Book</label>
-          <textarea
-            rows="2"
-            className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white"
-            placeholder="Enter the book name..."
-          />
+          <textarea rows="2" className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white" placeholder="Enter the book name..." />
         </div>
 
+        {/* Buttons */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
           <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
@@ -193,24 +201,19 @@ const Book = () => {
               <span>Tag Version H. Id</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <select
-                className="py-2 px-3 text-sm border border-green-600 rounded"
-                value={briefGroupType}
-                onChange={(e) => setBriefGroupType(e.target.value)}
-              >
+              <select className="py-2 px-3 text-sm border border-green-600 rounded" value={briefGroupType} onChange={(e) => setBriefGroupType(e.target.value)}>
                 <option value="">Select Group</option>
                 {groupTypes.map((code, index) => (
                   <option key={index} value={code}>{code}</option>
                 ))}
               </select>
-              <select className="py-2 px-3 text-sm border border-green-600 rounded">
+              <select className="py-2 px-3 text-sm border border-green-600 rounded" value={briefSelectedMainId} onChange={(e) => setBriefSelectedMainId(e.target.value)}>
+                <option value="">Select Tag Main Id</option>
                 {briefTagMainIds.map((id, index) => (
                   <option key={index} value={id}>{id}</option>
                 ))}
               </select>
-              <select className="py-2 px-3 text-sm border border-green-600 rounded">
-                <option>Version H</option>
-              </select>
+              <input type="text" value={briefOpeningTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
             </div>
           </div>
 
@@ -218,19 +221,13 @@ const Book = () => {
           <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-center">
             <label className="block text-base font-bold text-green-900 text-center mb-10">End Tag</label>
             <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
-            <select className="py-2 px-3 text-sm border border-green-600 rounded">
-              <option>Version E</option>
-            </select>
+            <input type="text" value={briefClosingTag} readOnly className="py-2 px-3 text-sm border border-green-600 rounded bg-gray-100" />
           </div>
         </div>
 
         <div className="mb-6">
           <label className="font-bold text-base text-green-900 block mb-2">Introduction</label>
-          <textarea
-            rows="6"
-            className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white"
-            placeholder="Enter brief introduction of the selected book..."
-          />
+          <textarea rows="6" className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white" placeholder="Enter brief introduction of the selected book..." />
         </div>
 
         <div className="mb-6">

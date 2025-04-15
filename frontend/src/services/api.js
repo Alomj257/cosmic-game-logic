@@ -22,7 +22,7 @@ export const getTagMainIdsByDataType = (dataTypeCode) =>
   API.get(`/tags/tagMainIds/${dataTypeCode}`);
 
 export const getTagDetailsByTagMainId = (tagMainId) =>
-  API.get(`/tags/details/${tagMainId}`);
+  API.get(`/tags/tagDetails/${tagMainId}`);
 
 export const updateTag = (id, updatedData) =>
   API.put(`/tags/update/${id}`, updatedData);
