@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus, Hash, Settings } from 'lucide-react';
-import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId } from '../../../services/api';
+import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, createBook } from '../../../services/api';
 import HoverPopup from './HoverPopup';
 
 const Book = () => {
@@ -112,21 +112,45 @@ const Book = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6 items-stretch">
           {/* Select Record */}
-          <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-between">
-            <label className="block text-base font-bold text-green-900 mb-3">Select Record No</label>
-            <div className="flex gap-4 mb-4">
-              <button className={`px-5 py-2 text-sm font-bold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`} onClick={() => setRecordMode('auto')}>Auto</button>
-              <button className={`px-5 py-2 text-sm font-bold border rounded ${recordMode === 'manual' ? 'bg-green-300' : 'bg-white'} border-green-600`} onClick={() => setRecordMode('manual')}>Manual</button>
+          <div className="md:col-span-3 border border-green-700 rounded p-3 flex flex-col justify-start">
+            <label className="block text-base font-bold text-green-900 mb-2">Select Record No</label>
+            <div className="flex gap-3 mb-3">
+              <button
+                className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`}
+                onClick={() => setRecordMode('auto')}
+              >
+                Auto
+              </button>
+              <button
+                className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'manual' ? 'bg-green-300' : 'bg-white'} border-green-600`}
+                onClick={() => setRecordMode('manual')}
+              >
+                Manual
+              </button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <input type="text" placeholder="Record No" disabled={isDisabled} className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600`} />
-              <input type="text" placeholder="Book No" disabled={isDisabled} className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600`} />
+            <div className="flex items-center gap-3 mb-3">
+              <label className="text-sm font-bold text-green-900 w-1/3">Record No</label>
+              <input
+                type="text"
+                placeholder="Record No"
+                disabled={isDisabled}
+                className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-bold text-green-900 w-1/3">Book No</label>
+              <input
+                type="text"
+                placeholder="Book No"
+                disabled={isDisabled}
+                className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
+              />
             </div>
           </div>
 
           {/* Head Tag Reference */}
-          <div className="md:col-span-6 border border-green-700 rounded p-4 flex flex-col justify-center">
-            <label className="block text-base font-bold text-green-900 text-center mb-10">Head Tag Reference for Book</label>
+          <div className="md:col-span-6 border border-green-700 rounded p-3 flex flex-col justify-start">
+            <label className="block text-base font-bold text-green-900 text-center mb-6">Head Tag Reference for Book</label>
             <div className="grid grid-cols-3 gap-2 text-center text-green-900 text-sm font-bold mb-2">
               <span>Group Type</span>
               <span>Tag Main Version Id</span>
@@ -150,8 +174,8 @@ const Book = () => {
           </div>
 
           {/* End Tag */}
-          <div className="md:col-span-3 border border-green-700 rounded p-4 flex flex-col justify-center">
-            <label className="block text-base font-bold text-green-900 text-center mb-10">End Tag</label>
+          <div className="md:col-span-3 border border-green-700 rounded p-3 flex flex-col justify-start">
+            <label className="block text-base font-bold text-green-900 text-center mb-6">End Tag</label>
             <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
             <HoverPopup value={createClosingTag} />
           </div>
@@ -164,20 +188,18 @@ const Book = () => {
         </div>
 
         {/* Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
           <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
           <button className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
-          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><PlusSquare size={16} /> Next Book</button>
-          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review</button>
+          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><FilePlus size={16} /> Create Book</button>
-          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Hash size={16} /> System Numbering</button>
-          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Settings size={16} /> Manual Numbering</button>
+          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><FilePlus size={16} /> Create New Book</button>
         </div>
       </div>
+
 
       {/* BRIEF INTRODUCTION */}
       <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
