@@ -196,10 +196,11 @@ const Book = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><FilePlus size={16} /> Create New Book</button>
+          <button className="bg-gradient-to-r from-light-blue to-dark-pink bg-[length:200%_100%] animate-color-blink text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2 text-sm">
+            <FilePlus size={16} /> Create New Book
+          </button>
         </div>
       </div>
-
 
       {/* BRIEF INTRODUCTION */}
       <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
