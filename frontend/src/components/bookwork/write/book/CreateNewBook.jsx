@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus, Hash, Settings } from 'lucide-react';
-import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, createBook } from '../../../../services/api';
+import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus } from 'lucide-react';
+import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
 
 const CreateNewBook = () => {
     const [recordMode, setRecordMode] = useState('auto');
-    const isDisabled = recordMode === 'auto';
+    const isRecordDisabled = recordMode === 'auto';
 
     const [groupTypes, setGroupTypes] = useState([]);
 
@@ -90,8 +90,8 @@ const CreateNewBook = () => {
                             <input
                                 type="text"
                                 placeholder="Record No"
-                                disabled={isDisabled}
-                                className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
+                                disabled={isRecordDisabled}
+                                className={`py-2 px-3 text-sm border rounded ${isRecordDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
                             />
                         </div>
                         <div className="flex items-center gap-3">
@@ -99,8 +99,7 @@ const CreateNewBook = () => {
                             <input
                                 type="text"
                                 placeholder="Book No"
-                                disabled={isDisabled}
-                                className={`py-2 px-3 text-sm border rounded ${isDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
+                                className="py-2 px-3 text-sm border rounded bg-white border-green-600 w-2/3"
                             />
                         </div>
                     </div>

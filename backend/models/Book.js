@@ -3,18 +3,18 @@ const mongoose = require("mongoose");
 const bookSchema = new mongoose.Schema(
     {
         recordNumber: {
-            type: String,     // Auto or Manual numbering
+            type: String, // Now stored as number (e.g. 1.00, 3.00)
             required: true
         },
         bookNumber: {
-            type: String,     // Auto or Manual numbering
-            required: true
-        },
-        groupType: {          // dataTypesCode
             type: String,
             required: true
         },
-        tagMainVersionId: {   // tagMainId
+        groupType: {
+            type: String,
+            required: true
+        },
+        tagMainVersionId: {
             type: String,
             required: true
         },
