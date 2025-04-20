@@ -23,12 +23,12 @@ export const updateTag = (id, updatedData) =>
 export const deleteTag = (id) => API.delete(`/tags/delete/${id}`);
 
 // ✅ Book APIs
-export const createBook = (bookData) => API.post("/book/create", bookData);
-export const getAllBooks = () => API.get("/book/list");
-export const getBookNamesOnly = () => API.get("/book/names");
-export const getBookById = (id) => API.get(`/book/${id}`);
+export const createBook = (bookData) => API.post("/books/create", bookData);
+export const getAllBooks = () => API.get("/books/list");
+export const getBookNamesOnly = () => API.get("/books/names");
+export const getBookById = (id) => API.get(`/books/${id}`);
 export const updateBook = (id, updatedData) =>
-  API.put(`/book/update/${id}`, updatedData);
-export const deleteBook = (id) => API.delete(`/book/delete/${id}`);
+  API.put(`/books/update/${id}`, updatedData);
+export const deleteBook = (id) => API.delete(`/books/delete/${id}`);
 
 export default API;

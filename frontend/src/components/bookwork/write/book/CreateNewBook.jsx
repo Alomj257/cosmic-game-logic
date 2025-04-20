@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Edit, Save, Trash2, PlusSquare, BookOpen, FilePlus } from 'lucide-react';
-import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId } from '../../../../services/api';
+import { Edit, Save, Trash2, BookOpen, FilePlus } from 'lucide-react';
+import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
+import { toast } from 'react-hot-toast';
 
 const CreateNewBook = () => {
     const [recordMode, setRecordMode] = useState('auto');
+    const [recordNumber, setRecordNumber] = useState('');
+    const [bookNumber, setBookNumber] = useState('');
+    const [bookName, setBookName] = useState('');
+
     const isRecordDisabled = recordMode === 'auto';
 
     const [groupTypes, setGroupTypes] = useState([]);
-
-    // Create states
     const [createGroupType, setCreateGroupType] = useState('');
     const [createTagMainIds, setCreateTagMainIds] = useState([]);
     const [createSelectedMainId, setCreateSelectedMainId] = useState('');
@@ -27,7 +30,6 @@ const CreateNewBook = () => {
                 console.error('Error fetching tags:', error);
             }
         };
-
         fetchTags();
     }, []);
 
@@ -41,7 +43,6 @@ const CreateNewBook = () => {
                 console.error('Error fetching create tag main ids:', error);
             }
         };
-
         fetchCreateTagMainIds();
     }, [createGroupType]);
 
@@ -56,34 +57,78 @@ const CreateNewBook = () => {
                 console.error('Error fetching tag details for create:', error);
             }
         };
-
         fetchCreateTagDetails();
     }, [createSelectedMainId]);
 
+    const handleSave = async () => {
+        try {
+            const books = await getAllBooks();
+            const existingNumbers = books.data
+                .map(book => parseFloat(book.recordNumber))
+                .filter(n => !isNaN(n));
+            const maxNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0;
+            const newRecordNumber = (maxNumber + 2).toFixed(2);
+
+            const payload = {
+                auto: recordMode === 'auto',
+                bookNumber,
+                groupType: createGroupType,
+                tagMainVersionId: createSelectedMainId,
+                tagVersionHId: createOpeningTag,
+                tagVersionEId: createClosingTag,
+                bookName
+            };
+
+            if (recordMode === 'manual') {
+                payload.recordNumber = parseFloat(recordNumber || newRecordNumber).toFixed(2);
+            }
+
+            await createBook(payload);
+            toast.success('Book created successfully!');
+            setRecordNumber('');
+            setBookNumber('');
+            setBookName('');
+            setCreateGroupType('');
+            setCreateTagMainIds([]);
+            setCreateSelectedMainId('');
+            setCreateOpeningTag('');
+            setCreateClosingTag('');
+        } catch (error) {
+            console.error('Error creating book:', error);
+            toast.error('Failed to create book.');
+        }
+    };
+
+    const handleDelete = () => {
+        setRecordNumber('');
+        setBookNumber('');
+        setBookName('');
+        setRecordMode('auto');
+        setCreateGroupType('');
+        setCreateTagMainIds([]);
+        setCreateSelectedMainId('');
+        setCreateOpeningTag('');
+        setCreateClosingTag('');
+        toast.success('Form cleared!');
+    };
+    
     return (
         <div className="p-4 md:p-8 flex flex-col items-center gap-10">
-
-            {/* CREATE NEW BOOK */}
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">CREATE NEW BOOK</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6 items-stretch">
-                    {/* Select Record */}
-                    <div className="md:col-span-3 border border-green-700 rounded p-3 flex flex-col justify-start">
+                    <div className="md:col-span-3 border border-green-700 rounded p-3">
                         <label className="block text-base font-bold text-green-900 mb-2">Select Record No</label>
                         <div className="flex gap-3 mb-3">
                             <button
                                 className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`}
                                 onClick={() => setRecordMode('auto')}
-                            >
-                                Auto
-                            </button>
+                            >Auto</button>
                             <button
                                 className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'manual' ? 'bg-green-300' : 'bg-white'} border-green-600`}
                                 onClick={() => setRecordMode('manual')}
-                            >
-                                Manual
-                            </button>
+                            >Manual</button>
                         </div>
                         <div className="flex items-center gap-3 mb-3">
                             <label className="text-sm font-bold text-green-900 w-1/3">Record No</label>
@@ -91,6 +136,8 @@ const CreateNewBook = () => {
                                 type="text"
                                 placeholder="Record No"
                                 disabled={isRecordDisabled}
+                                value={recordNumber}
+                                onChange={(e) => setRecordNumber(e.target.value)}
                                 className={`py-2 px-3 text-sm border rounded ${isRecordDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
                             />
                         </div>
@@ -99,13 +146,14 @@ const CreateNewBook = () => {
                             <input
                                 type="text"
                                 placeholder="Book No"
+                                value={bookNumber}
+                                onChange={(e) => setBookNumber(e.target.value)}
                                 className="py-2 px-3 text-sm border rounded bg-white border-green-600 w-2/3"
                             />
                         </div>
                     </div>
 
-                    {/* Head Tag Reference */}
-                    <div className="md:col-span-6 border border-green-700 rounded p-3 flex flex-col justify-start">
+                    <div className="md:col-span-6 border border-green-700 rounded p-3">
                         <label className="block text-base font-bold text-green-900 text-center mb-6">Head Tag Reference for Book</label>
                         <div className="grid grid-cols-3 gap-2 text-center text-green-900 text-sm font-bold mb-2">
                             <span>Group Type</span>
@@ -129,25 +177,28 @@ const CreateNewBook = () => {
                         </div>
                     </div>
 
-                    {/* End Tag */}
-                    <div className="md:col-span-3 border border-green-700 rounded p-3 flex flex-col justify-start">
+                    <div className="md:col-span-3 border border-green-700 rounded p-3">
                         <label className="block text-base font-bold text-green-900 text-center mb-6">End Tag</label>
                         <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
                         <HoverPopup value={createClosingTag} />
                     </div>
                 </div>
 
-                {/* Book Name */}
                 <div className="mb-6">
                     <label className="font-bold text-base text-green-900 block mb-2">Name of the Book</label>
-                    <textarea rows="2" className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white" placeholder="Enter the book name..." />
+                    <textarea
+                        rows="2"
+                        value={bookName}
+                        onChange={(e) => setBookName(e.target.value)}
+                        className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white"
+                        placeholder="Enter the book name..."
+                    />
                 </div>
 
-                {/* Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
-                    <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
-                    <button className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
+                    <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
+                    <button onClick={handleDelete} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
                     <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
                 </div>
 
