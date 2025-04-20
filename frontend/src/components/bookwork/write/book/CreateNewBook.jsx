@@ -146,7 +146,7 @@ const CreateNewBook = () => {
                                     handleSave();
                                     setShowConfirmation(false);
                                 }}
-                                className="bg-green-600 text-white px-4 py-2 rounded font-bold"
+                                className="bg-green-600 text-white px-4 py-2 rounded font-semibold"
                             >
                                 Yes, Save
                             </button>
@@ -155,7 +155,7 @@ const CreateNewBook = () => {
                                     handleDelete();
                                     setShowConfirmation(false);
                                 }}
-                                className="bg-red-600 text-white px-4 py-2 rounded font-bold"
+                                className="bg-red-600 text-white px-4 py-2 rounded font-semibold"
                             >
                                 No, Discard
                             </button>
