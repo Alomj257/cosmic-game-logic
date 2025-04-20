@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "./components/common/Navbar";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import DatabasePage from "./pages/admin/DatabasePage";
 
 const Login = lazy(() => import("./components/auth/Login"));
 const Register = lazy(() => import("./components/auth/Register"));
@@ -38,6 +39,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <WritePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/database"
+              element={
+                <ProtectedRoute>
+                  <DatabasePage />
                 </ProtectedRoute>
               }
             />
