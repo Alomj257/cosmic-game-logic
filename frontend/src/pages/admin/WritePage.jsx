@@ -10,7 +10,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 
-import Book from "../../components/bookwork/write/Book";
+import Book from "../../components/bookwork/write/book/Book";
 import Chapter from "../../components/bookwork/write/Chapter";
 import Heading from "../../components/bookwork/write/Heading";
 import SubHeading from "../../components/bookwork/write/SubHeading";
