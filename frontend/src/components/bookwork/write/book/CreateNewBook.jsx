@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Edit, Save, Trash2, BookOpen, FilePlus } from 'lucide-react';
+import { Edit, Save, Trash2, BookOpen, FilePlus, Info } from 'lucide-react';
 import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
 import { toast } from 'react-hot-toast';
 import ReviewModal from './models/ReviewModal';
+import RecordGridModal from './models/RecordGridModal';
 
 const CreateNewBook = () => {
     const [recordMode, setRecordMode] = useState('auto');
@@ -23,6 +24,12 @@ const CreateNewBook = () => {
     const [createSelectedMainId, setCreateSelectedMainId] = useState('');
     const [createOpeningTag, setCreateOpeningTag] = useState('');
     const [createClosingTag, setCreateClosingTag] = useState('');
+
+    const [showRecordNumberModal, setShowRecordNumberModal] = useState(false);
+    const [showBookNumberModal, setShowBookNumberModal] = useState(false);
+    const [recordNumbers, setRecordNumbers] = useState([]);
+    const [bookNumbers, setBookNumbers] = useState([]);
+
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -133,6 +140,36 @@ const CreateNewBook = () => {
         setShowConfirmation(true)
     };
 
+    const fetchRecordAndBookNumbers = async () => {
+        try {
+            const books = await getAllBooks();
+            const records = books.data
+                .map(b => b.recordNumber)
+                .filter(Boolean)
+                .sort((a, b) => parseFloat(a) - parseFloat(b));
+
+            const bookNos = books.data
+                .map(b => b.bookNumber)
+                .filter(Boolean)
+                .sort();
+
+            setRecordNumbers(records);
+            setBookNumbers(bookNos);
+        } catch (error) {
+            console.error('Error fetching record/book numbers:', error);
+        }
+    };
+
+    const handleRecordInfoClick = async () => {
+        await fetchRecordAndBookNumbers();
+        setShowRecordNumberModal(true);
+    };
+
+    const handleBookInfoClick = async () => {
+        await fetchRecordAndBookNumbers();
+        setShowBookNumberModal(true);
+    };
+
     return (
         <div className="p-4 md:p-8 flex flex-col items-center gap-10">
             {showConfirmation && (
@@ -178,10 +215,24 @@ const CreateNewBook = () => {
                 />
             )}
 
+            {showRecordNumberModal && (
+                <RecordGridModal
+                    title="Available Record Numbers"
+                    values={recordNumbers}
+                    onClose={() => setShowRecordNumberModal(false)}
+                />
+            )}
+
+            {showBookNumberModal && (
+                <RecordGridModal
+                    title="Available Book Numbers"
+                    values={bookNumbers}
+                    onClose={() => setShowBookNumberModal(false)}
+                />
+            )}
 
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">CREATE NEW BOOK</h2>
-
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6 items-stretch">
                     <div className="md:col-span-3 border border-green-700 rounded p-3">
                         <label className="block text-base font-bold text-green-900 mb-2">Select Record No</label>
@@ -189,32 +240,56 @@ const CreateNewBook = () => {
                             <button
                                 className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`}
                                 onClick={() => setRecordMode('auto')}
-                            >Auto</button>
+                            >
+                                Auto
+                            </button>
                             <button
                                 className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'manual' ? 'bg-green-300' : 'bg-white'} border-green-600`}
                                 onClick={() => setRecordMode('manual')}
-                            >Manual</button>
+                            >
+                                Manual
+                            </button>
                         </div>
-                        <div className="flex items-center gap-3 mb-3">
+
+                        {/* Record No */}
+                        <div className="flex items-center gap-2 mb-3">
                             <label className="text-sm font-bold text-green-900 w-1/3">Record No</label>
-                            <input
-                                type="text"
-                                placeholder="Record No"
-                                disabled={isRecordDisabled}
-                                value={recordNumber}
-                                onChange={(e) => setRecordNumber(e.target.value)}
-                                className={`py-2 px-3 text-sm border rounded ${isRecordDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-2/3`}
-                            />
+                            <div className="relative w-2/3 flex items-center">
+                                <input
+                                    type="text"
+                                    placeholder="Record No"
+                                    disabled={isRecordDisabled}
+                                    value={recordNumber}
+                                    onChange={(e) => setRecordNumber(e.target.value)}
+                                    className={`py-2 px-3 text-sm border rounded ${isRecordDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-full pr-8`}
+                                />
+                                <Info
+                                    onClick={handleRecordInfoClick}
+                                    size={16}
+                                    className="absolute right-2 text-green-700 cursor-pointer"
+                                    title="Auto increments by 2.00 starting from 1.00"
+                                />
+                            </div>
                         </div>
-                        <div className="flex items-center gap-3">
+
+                        {/* Book No */}
+                        <div className="flex items-center gap-2">
                             <label className="text-sm font-bold text-green-900 w-1/3">Book No</label>
-                            <input
-                                type="text"
-                                placeholder="Book No"
-                                value={bookNumber}
-                                onChange={(e) => setBookNumber(e.target.value)}
-                                className="py-2 px-3 text-sm border rounded bg-white border-green-600 w-2/3"
-                            />
+                            <div className="relative w-2/3 flex items-center">
+                                <input
+                                    type="text"
+                                    placeholder="Book No"
+                                    value={bookNumber}
+                                    onChange={(e) => setBookNumber(e.target.value)}
+                                    className="py-2 px-3 text-sm border rounded bg-white border-green-600 w-full pr-8"
+                                />
+                                <Info
+                                    onClick={handleBookInfoClick}
+                                    size={16}
+                                    className="absolute right-2 text-green-700 cursor-pointer"
+                                    title="Manually assign a Book Number"
+                                />
+                            </div>
                         </div>
                     </div>
 
