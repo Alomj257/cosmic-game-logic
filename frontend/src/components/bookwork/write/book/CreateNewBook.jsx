@@ -3,6 +3,7 @@ import { Edit, Save, Trash2, BookOpen, FilePlus } from 'lucide-react';
 import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
 import { toast } from 'react-hot-toast';
+import ReviewModal from './models/ReviewModal';
 
 const CreateNewBook = () => {
     const [recordMode, setRecordMode] = useState('auto');
@@ -162,33 +163,21 @@ const CreateNewBook = () => {
                     </div>
                 </div>
             )}
+
             {showReviewModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg border border-green-700 w-full max-w-2xl">
-                        <h3 className="text-2xl font-bold text-green-800 mb-4 text-center">Review Book Details</h3>
-                        <div className="space-y-2 text-green-900 text-sm">
-                            <p><span className="font-semibold">Record Mode:</span> {recordMode}</p>
-                            {recordMode === 'manual' && (
-                                <p><span className="font-semibold">Record Number:</span> {recordNumber}</p>
-                            )}
-                            <p><span className="font-semibold">Book Number:</span> {bookNumber}</p>
-                            <p><span className="font-semibold">Book Name:</span> {bookName}</p>
-                            <p><span className="font-semibold">Group Type:</span> {createGroupType}</p>
-                            <p><span className="font-semibold">Tag Main Version ID:</span> {createSelectedMainId}</p>
-                            <p><span className="font-semibold">Tag Version H. ID:</span> {createOpeningTag}</p>
-                            <p><span className="font-semibold">Tag Version E. ID:</span> {createClosingTag}</p>
-                        </div>
-                        <div className="flex justify-end mt-6">
-                            <button
-                                onClick={() => setShowReviewModal(false)}
-                                className="bg-green-600 text-white px-4 py-2 rounded font-bold"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <ReviewModal
+                    onClose={() => setShowReviewModal(false)}
+                    recordMode={recordMode}
+                    recordNumber={recordNumber}
+                    bookNumber={bookNumber}
+                    bookName={bookName}
+                    groupType={createGroupType}
+                    tagMainId={createSelectedMainId}
+                    tagVersionHId={createOpeningTag}
+                    tagVersionEId={createClosingTag}
+                />
             )}
+
 
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">CREATE NEW BOOK</h2>
