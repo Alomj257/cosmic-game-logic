@@ -240,6 +240,7 @@ const CreateNewBook = () => {
                             <button
                                 className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`}
                                 onClick={() => setRecordMode('auto')}
+                                
                             >
                                 Auto
                             </button>

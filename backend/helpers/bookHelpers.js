@@ -1,14 +1,19 @@
 const Book = require("../models/Book");
 
 exports.getNextRecordNumber = async () => {
-    const lastBook = await Book.findOne().sort({ recordNumber: -1 });
+    // Find the maximum record number directly without sorting
+    const books = await Book.find();
 
-    if (!lastBook) {
+    // If no books exist, start from 1.00
+    if (books.length === 0) {
         return "1.00";
     }
 
-    const lastNumber = parseFloat(lastBook.recordNumber);
-    const nextNumber = (lastNumber + 2.00).toFixed(2);
+    // Get the maximum record number from the existing books
+    const maxNumber = Math.max(...books.map(book => parseFloat(book.recordNumber) || 0));
+
+    // Increment by 2.00 and return the next record number
+    const nextNumber = (maxNumber + 2.00).toFixed(2);
 
     return nextNumber;
 };
