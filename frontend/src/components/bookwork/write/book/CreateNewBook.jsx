@@ -12,6 +12,10 @@ const CreateNewBook = () => {
 
     const isRecordDisabled = recordMode === 'auto';
 
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
+    const [showReviewModal, setShowReviewModal] = useState(false);
+
     const [groupTypes, setGroupTypes] = useState([]);
     const [createGroupType, setCreateGroupType] = useState('');
     const [createTagMainIds, setCreateTagMainIds] = useState([]);
@@ -111,9 +115,81 @@ const CreateNewBook = () => {
         setCreateClosingTag('');
         toast.success('Form cleared!');
     };
-    
+
+    const hasUnsavedData = () => {
+        return (
+            recordNumber ||
+            bookNumber ||
+            bookName ||
+            createGroupType ||
+            createSelectedMainId ||
+            createOpeningTag ||
+            createClosingTag
+        );
+    };
+
+    const handleNewBookClick = () => {
+        setShowConfirmation(true)
+    };
+
     return (
         <div className="p-4 md:p-8 flex flex-col items-center gap-10">
+            {showConfirmation && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg border border-green-700 w-full max-w-md">
+                        <h3 className="text-xl font-bold text-green-800 mb-4">Unsaved Data</h3>
+                        <p className="mb-6 text-green-900">Do you want to save the current details to the database?</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => {
+                                    handleSave();
+                                    setShowConfirmation(false);
+                                }}
+                                className="bg-green-600 text-white px-4 py-2 rounded font-bold"
+                            >
+                                Yes, Save
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleDelete();
+                                    setShowConfirmation(false);
+                                }}
+                                className="bg-red-600 text-white px-4 py-2 rounded font-bold"
+                            >
+                                No, Discard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showReviewModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg border border-green-700 w-full max-w-2xl">
+                        <h3 className="text-2xl font-bold text-green-800 mb-4 text-center">Review Book Details</h3>
+                        <div className="space-y-2 text-green-900 text-sm">
+                            <p><span className="font-semibold">Record Mode:</span> {recordMode}</p>
+                            {recordMode === 'manual' && (
+                                <p><span className="font-semibold">Record Number:</span> {recordNumber}</p>
+                            )}
+                            <p><span className="font-semibold">Book Number:</span> {bookNumber}</p>
+                            <p><span className="font-semibold">Book Name:</span> {bookName}</p>
+                            <p><span className="font-semibold">Group Type:</span> {createGroupType}</p>
+                            <p><span className="font-semibold">Tag Main Version ID:</span> {createSelectedMainId}</p>
+                            <p><span className="font-semibold">Tag Version H. ID:</span> {createOpeningTag}</p>
+                            <p><span className="font-semibold">Tag Version E. ID:</span> {createClosingTag}</p>
+                        </div>
+                        <div className="flex justify-end mt-6">
+                            <button
+                                onClick={() => setShowReviewModal(false)}
+                                className="bg-green-600 text-white px-4 py-2 rounded font-bold"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">CREATE NEW BOOK</h2>
 
@@ -199,13 +275,17 @@ const CreateNewBook = () => {
                     <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
                     <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
                     <button onClick={handleDelete} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
-                    <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
+                    <button onClick={() => setShowReviewModal(true)} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <button className="bg-gradient-to-r from-light-blue to-dark-pink bg-[length:200%_100%] animate-color-blink text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2 text-sm">
+                    <button
+                        onClick={handleNewBookClick}
+                        className="bg-gradient-to-r from-light-blue to-dark-pink bg-[length:200%_100%] animate-color-blink text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2 text-sm"
+                    >
                         <FilePlus size={16} /> Create New Book
                     </button>
+
                 </div>
             </div>
         </div>
