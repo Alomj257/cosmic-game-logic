@@ -30,7 +30,7 @@ const BriefIntroduction = () => {
     const [recordNumbers, setRecordNumbers] = useState([]);
     const [bookNumbers, setBookNumbers] = useState([]);
     const [showRecordModal, setShowRecordModal] = useState(false);
-    const [showBookModal, setShowBookModal] = useState(false);
+    // const [showBookModal, setShowBookModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
 
     useEffect(() => {
@@ -142,13 +142,13 @@ const BriefIntroduction = () => {
                     onClose={() => setShowRecordModal(false)}
                 />
             )}
-            {showBookModal && (
+            {/* {showBookModal && (
                 <RecordGridModal
                     title="Available Book Numbers"
                     values={bookNumbers}
                     onClose={() => setShowBookModal(false)}
                 />
-            )}
+            )} */}
 
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">
@@ -180,12 +180,12 @@ const BriefIntroduction = () => {
                                     onChange={(e) => setBookNumber(e.target.value)}
                                     className="py-2 px-3 text-sm border rounded bg-white border-green-600 w-full pr-8"
                                 >
-                                    <option value="">Select Book No</option>
+                                    <option value="">Select</option>
                                     {bookNumbers.map((bn, index) => (
                                         <option key={index} value={bn}>{bn}</option>
                                     ))}
                                 </select>
-                                <Info onClick={() => setShowBookModal(true)} size={16} className="absolute right-2 text-green-700 cursor-pointer" />
+                                {/* <Info onClick={() => setShowBookModal(true)} size={16} className="absolute right-2 text-green-700 cursor-pointer" /> */}
                             </div>
                         </div>
                     </div>
