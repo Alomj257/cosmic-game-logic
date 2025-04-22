@@ -125,6 +125,7 @@ const BriefIntroduction = () => {
                     onClose={() => setShowReviewModal(false)}
                     recordMode="manual"
                     recordNumber={recordNumber}
+                    bookName={bookName}
                     bookNumber={bookNumber}
                     groupType={selectedGroupType}
                     tagMainId={selectedTagMainId}
