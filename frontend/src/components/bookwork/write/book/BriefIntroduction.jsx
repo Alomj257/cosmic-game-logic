@@ -90,6 +90,7 @@ const BriefIntroduction = () => {
                 auto: false,
                 recordNumber: parseFloat(recordNumber).toFixed(2),
                 bookNumber,
+                bookName,
                 groupType: selectedGroupType,
                 tagMainVersionId: selectedTagMainId,
                 tagVersionHId: openingTag,
