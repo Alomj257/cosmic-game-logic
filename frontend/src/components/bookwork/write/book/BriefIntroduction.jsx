@@ -1,4 +1,3 @@
-// BriefIntroduction.jsx
 import React, { useEffect, useState } from 'react';
 import { Edit, Save, Trash2, BookOpen, Info, PlusSquare } from 'lucide-react';
 import {
@@ -17,7 +16,8 @@ const BriefIntroduction = () => {
     const [recordNumber, setRecordNumber] = useState('');
     const [bookNumber, setBookNumber] = useState('');
     const [bookName, setBookName] = useState('');
-    const [briefIntro, setBriefIntro] = useState('');
+    const [bookNameHTML, setBookNameHTML] = useState('');
+    const [introText, setIntroText] = useState('');
 
     const [groupTypes, setGroupTypes] = useState([]);
     const [selectedGroupType, setSelectedGroupType] = useState('');
@@ -25,12 +25,13 @@ const BriefIntroduction = () => {
     const [selectedTagMainId, setSelectedTagMainId] = useState('');
     const [openingTag, setOpeningTag] = useState('');
     const [closingTag, setClosingTag] = useState('');
+    const [introOpeningTag, setIntroOpeningTag] = useState('');
+    const [introClosingTag, setIntroClosingTag] = useState('');
 
     const [booksList, setBooksList] = useState([]);
     const [recordNumbers, setRecordNumbers] = useState([]);
     const [bookNumbers, setBookNumbers] = useState([]);
     const [showRecordModal, setShowRecordModal] = useState(false);
-    // const [showBookModal, setShowBookModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
 
     useEffect(() => {
@@ -82,7 +83,16 @@ const BriefIntroduction = () => {
     useEffect(() => {
         const selectedBook = booksList.find(b => b.bookNumber === bookNumber);
         setBookName(selectedBook?.bookName || '');
+        setBookNameHTML(selectedBook?.bookName || '');
     }, [bookNumber, booksList]);
+
+    const handleNextParagraph = () => {
+        if (!introText.trim()) return;
+        const wrapped = `${introOpeningTag}${introText}${introClosingTag}`;
+        const updatedHTML = `${bookNameHTML}<br/>${wrapped}`;
+        setBookNameHTML(updatedHTML);
+        setIntroText('');
+    };
 
     const handleSave = async () => {
         try {
@@ -90,12 +100,12 @@ const BriefIntroduction = () => {
                 auto: false,
                 recordNumber: parseFloat(recordNumber).toFixed(2),
                 bookNumber,
-                bookName,
+                bookName: bookNameHTML,
                 groupType: selectedGroupType,
                 tagMainVersionId: selectedTagMainId,
                 tagVersionHId: openingTag,
                 tagVersionEId: closingTag,
-                briefIntroduction: briefIntro,
+                briefIntroduction: '',
             };
             await createBook(payload);
             toast.success('Brief Introduction saved successfully!');
@@ -110,12 +120,15 @@ const BriefIntroduction = () => {
         setRecordNumber('');
         setBookNumber('');
         setBookName('');
-        setBriefIntro('');
+        setBookNameHTML('');
+        setIntroText('');
         setSelectedGroupType('');
         setTagMainIds([]);
         setSelectedTagMainId('');
         setOpeningTag('');
         setClosingTag('');
+        setIntroOpeningTag('');
+        setIntroClosingTag('');
     };
 
     return (
@@ -125,13 +138,13 @@ const BriefIntroduction = () => {
                     onClose={() => setShowReviewModal(false)}
                     recordMode="manual"
                     recordNumber={recordNumber}
-                    bookName={bookName}
+                    bookName={bookNameHTML}
                     bookNumber={bookNumber}
                     groupType={selectedGroupType}
                     tagMainId={selectedTagMainId}
                     tagVersionHId={openingTag}
                     tagVersionEId={closingTag}
-                    briefIntroduction={briefIntro}
+                    briefIntroduction=""
                 />
             )}
 
@@ -142,13 +155,6 @@ const BriefIntroduction = () => {
                     onClose={() => setShowRecordModal(false)}
                 />
             )}
-            {/* {showBookModal && (
-                <RecordGridModal
-                    title="Available Book Numbers"
-                    values={bookNumbers}
-                    onClose={() => setShowBookModal(false)}
-                />
-            )} */}
 
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">
@@ -185,7 +191,6 @@ const BriefIntroduction = () => {
                                         <option key={index} value={bn}>{bn}</option>
                                     ))}
                                 </select>
-                                {/* <Info onClick={() => setShowBookModal(true)} size={16} className="absolute right-2 text-green-700 cursor-pointer" /> */}
                             </div>
                         </div>
                     </div>
@@ -221,34 +226,48 @@ const BriefIntroduction = () => {
                     </div>
                 </div>
 
-                {bookName && (
-                    <div className="mb-2">
-                        <label className="font-bold text-base text-green-900 block mb-1">Book Name</label>
-                        <input
-                            type="text"
-                            readOnly
-                            value={bookName}
-                            className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-gray-100 cursor-not-allowed"
-                        />
-                    </div>
-                )}
+                <div className="mb-6 text-center">
+                    <label className="font-bold text-xl text-green-900 block mb-2">Book Name</label>
+                    <div className="border border-green-600 rounded bg-white p-4 text-center text-base min-h-[100px]" dangerouslySetInnerHTML={{ __html: bookNameHTML }} />
+                </div>
 
-                <div className="mb-6">
-                    <label className="font-bold text-base text-green-900 block mb-2">Introduction</label>
+                <div className="mb-6 flex items-start gap-2">
+                    <select
+                        value={introOpeningTag}
+                        onChange={(e) => setIntroOpeningTag(e.target.value)}
+                        className="py-2 px-3 text-sm border border-green-600 rounded w-1/24"
+                    >
+                        <option value="">Open</option>
+                        <option value="<i>">&lt;i&gt;</option>
+                        <option value="<b>">&lt;b&gt;</option>
+                        <option value="<u>">&lt;u&gt;</option>
+                    </select>
+
                     <textarea
-                        rows="6"
-                        value={briefIntro}
-                        onChange={(e) => setBriefIntro(e.target.value)}
-                        className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white"
-                        placeholder="Enter brief introduction of the selected book..."
+                        rows="4"
+                        value={introText}
+                        onChange={(e) => setIntroText(e.target.value)}
+                        className="w-5/6 border border-green-600 rounded py-2 px-3 text-sm bg-white"
+                        placeholder="Enter paragraph to add to Book Name..."
                     />
+
+                    <select
+                        value={introClosingTag}
+                        onChange={(e) => setIntroClosingTag(e.target.value)}
+                        className="py-2 px-3 text-sm border border-green-600 rounded w-1/24"
+                    >
+                        <option value="">Close</option>
+                        <option value="</i>">&lt;/i&gt;</option>
+                        <option value="</b>">&lt;/b&gt;</option>
+                        <option value="</u>">&lt;/u&gt;</option>
+                    </select>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                     <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
                     <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
                     <button onClick={resetForm} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
-                    <button className="bg-pink-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><PlusSquare size={16} /> Next Paragraph</button>
+                    <button onClick={handleNextParagraph} className="bg-pink-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><PlusSquare size={16} /> Next Paragraph</button>
                     <button onClick={() => setShowReviewModal(true)} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
                 </div>
             </div>
