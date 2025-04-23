@@ -40,15 +40,23 @@ const BriefIntroduction = () => {
                 const tagsRes = await getAllTags();
                 const uniqueTypes = [...new Set(tagsRes.data.map(tag => tag.dataTypeCode))];
                 setGroupTypes(uniqueTypes);
-
+        
                 const booksRes = await getAllBooks();
                 setBooksList(booksRes.data);
-                setRecordNumbers(booksRes.data.map(b => b.recordNumber).filter(Boolean).sort((a, b) => parseFloat(a) - parseFloat(b)));
-                setBookNumbers(booksRes.data.map(b => b.bookNumber).filter(Boolean).sort());
+        
+                const uniqueRecordNumbers = [
+                    ...new Set(booksRes.data.map(b => b.recordNumber).filter(Boolean))
+                ].sort((a, b) => parseFloat(a) - parseFloat(b));
+                setRecordNumbers(uniqueRecordNumbers);
+        
+                const uniqueBookNumbers = [
+                    ...new Set(booksRes.data.map(b => b.bookNumber).filter(Boolean))
+                ].sort((a, b) => parseFloat(a) - parseFloat(b));
+                setBookNumbers(uniqueBookNumbers);
             } catch (err) {
                 console.error('Error loading initial data:', err);
             }
-        };
+        };        
 
         fetchInitialData();
     }, []);
