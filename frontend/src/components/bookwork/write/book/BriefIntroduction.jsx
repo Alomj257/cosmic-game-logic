@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Edit, Save, Trash2, BookOpen, Info, PlusSquare } from 'lucide-react';
+import { Edit, Save, Trash2, BookOpen, Info, PlusSquare, ArrowUp, ArrowDown, Check } from 'lucide-react';
 import {
     getAllTags,
     getTagMainIdsByDataType,
@@ -34,7 +34,9 @@ const BriefIntroduction = () => {
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
 
-    const [introParagraphs, setIntroParagraphs] = useState([]); // Store all intro paragraphs separately
+    const [introParagraphs, setIntroParagraphs] = useState([]);
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [editingText, setEditingText] = useState('');
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -93,19 +95,48 @@ const BriefIntroduction = () => {
     useEffect(() => {
         const selectedBook = booksList.find(b => b.bookNumber === bookNumber);
         setBookName(selectedBook?.bookName || '');
-        setBookNameHTML(selectedBook?.bookName || ''); // Only store the Book Name initially, not paragraphs
+        setBookNameHTML(selectedBook?.bookName || '');
     }, [bookNumber, booksList]);
 
+    const updateBookNameHTML = (paragraphs) => {
+        const formatted = [bookName, ...paragraphs].join('<br/>');
+        setBookNameHTML(formatted);
+    };
+
     const handleNextParagraph = () => {
-        if (!introText.trim()) return;
+        if (!introText.trim() || !introOpeningTag || !introClosingTag) return;
         const wrapped = `${introOpeningTag}${introText}${introClosingTag}`;
-        setIntroParagraphs(prev => {
-            const newIntroParagraphs = [...prev, wrapped];
-            const newBookNameHTML = `${bookName}<br/>${newIntroParagraphs.join('<br/>')}`; // Update bookNameHTML
-            setBookNameHTML(newBookNameHTML); // Update the bookNameHTML for display
-            return newIntroParagraphs;
-        });
-        setIntroText(''); // Reset the input field
+        const newParagraphs = [...introParagraphs, wrapped];
+        setIntroParagraphs(newParagraphs);
+        updateBookNameHTML(newParagraphs);
+        setIntroText('');
+    };
+
+    const handleEditParagraph = (index) => {
+        setEditingIndex(index);
+        const div = document.createElement('div');
+        div.innerHTML = introParagraphs[index];
+        setEditingText(div.textContent || div.innerText || '');
+    };
+
+    const handleUpdateParagraph = () => {
+        if (editingIndex === null || !editingText.trim()) return;
+        const updatedParagraphs = [...introParagraphs];
+        const wrapped = `${introOpeningTag}${editingText}${introClosingTag}`;
+        updatedParagraphs[editingIndex] = wrapped;
+        setIntroParagraphs(updatedParagraphs);
+        updateBookNameHTML(updatedParagraphs);
+        setEditingIndex(null);
+        setEditingText('');
+    };
+
+    const moveParagraph = (index, direction) => {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= introParagraphs.length) return;
+        const newParagraphs = [...introParagraphs];
+        [newParagraphs[index], newParagraphs[newIndex]] = [newParagraphs[newIndex], newParagraphs[index]];
+        setIntroParagraphs(newParagraphs);
+        updateBookNameHTML(newParagraphs);
     };
 
     const handleSave = async () => {
@@ -119,7 +150,7 @@ const BriefIntroduction = () => {
                 tagMainVersionId: selectedTagMainId,
                 tagVersionHId: openingTag,
                 tagVersionEId: closingTag,
-                briefIntroduction: introParagraphs.map(p => ({ paragraph: p })) // <- fixed here
+                briefIntroduction: introParagraphs.map(p => ({ paragraph: p }))
             };
             await createBook(payload);
             toast.success('Brief Introduction saved successfully!');
@@ -129,13 +160,12 @@ const BriefIntroduction = () => {
             toast.error('Failed to save brief introduction.');
         }
     };
-    
 
     const resetForm = () => {
         setRecordNumber('');
         setBookNumber('');
         setBookName('');
-        setBookNameHTML(''); // Reset to only book name without paragraphs
+        setBookNameHTML('');
         setIntroText('');
         setSelectedGroupType('');
         setTagMainIds([]);
@@ -144,7 +174,9 @@ const BriefIntroduction = () => {
         setClosingTag('');
         setIntroOpeningTag('');
         setIntroClosingTag('');
-        setIntroParagraphs([]); // Reset the paragraphs
+        setIntroParagraphs([]);
+        setEditingIndex(null);
+        setEditingText('');
     };
 
     const handleReviewBook = () => {
@@ -158,15 +190,15 @@ const BriefIntroduction = () => {
                     onClose={() => setShowReviewModal(false)}
                     recordMode="manual"
                     recordNumber={recordNumber}
-                    bookName={bookName} // Only pass the book name without paragraphs
+                    bookName={bookName}
                     bookNumber={bookNumber}
                     groupType={selectedGroupType}
                     tagMainId={selectedTagMainId}
                     tagVersionHId={openingTag}
                     tagVersionEId={closingTag}
-                    briefIntroduction={introParagraphs} /> 
+                    briefIntroduction={introParagraphs}
+                />
             )}
-
             {showRecordModal && (
                 <RecordGridModal
                     title="Available Record Numbers"
@@ -174,12 +206,12 @@ const BriefIntroduction = () => {
                     onClose={() => setShowRecordModal(false)}
                 />
             )}
-
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">
                     BRIEF INTRODUCTION OF THE SELECTED BOOK
                 </h2>
 
+                {/* Record and Book No Section */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6 items-stretch">
                     <div className="md:col-span-3 border border-green-700 rounded p-3">
                         <label className="block text-base font-bold text-green-900 mb-2">Record No (Manual)</label>
@@ -245,49 +277,86 @@ const BriefIntroduction = () => {
                     </div>
                 </div>
 
+                {/* Book Name Display */}
                 <div className="mb-6 text-center">
-                    <label className="font-bold text-xl text-green-900 block mb-2">Book Name</label>
-                    <div className="border border-green-600 rounded bg-white p-4 text-center text-base min-h-[100px]" dangerouslySetInnerHTML={{ __html: bookNameHTML }} />
+                    <label className="font-bold text-left text-xl text-green-900 block mb-2">Book Name</label>
+                    <div
+                        className="border border-green-600 rounded bg-white p-4 text-center text-base min-h-[100px]"
+                        dangerouslySetInnerHTML={{ __html: bookNameHTML }}
+                    />
                 </div>
 
+                {/* Paragraph Input Section */}
+                <div className="mb-6">
+                <label className="font-bold text-left text-xl text-green-900 block mb-2">Write your Introduction</label>
                 <div className="mb-6 flex items-start gap-2">
-                    <select
-                        value={introOpeningTag}
-                        onChange={(e) => setIntroOpeningTag(e.target.value)}
-                        className="py-2 px-3 text-sm border border-green-600 rounded w-1/24"
-                    >
+                    <select value={introOpeningTag} onChange={(e) => setIntroOpeningTag(e.target.value)} className="py-2 px-3 text-sm border border-green-600 rounded w-1/24">
                         <option value="">Open</option>
                         <option value="<i>">&lt;i&gt;</option>
                         <option value="<b>">&lt;b&gt;</option>
                         <option value="<u>">&lt;u&gt;</option>
                     </select>
-
-                    <textarea
-                        rows="4"
-                        value={introText}
-                        onChange={(e) => setIntroText(e.target.value)}
-                        className="w-5/6 border border-green-600 rounded py-2 px-3 text-sm bg-white"
-                        placeholder="Enter paragraph to add to Book Name..."
-                    />
-
-                    <select
-                        value={introClosingTag}
-                        onChange={(e) => setIntroClosingTag(e.target.value)}
-                        className="py-2 px-3 text-sm border border-green-600 rounded w-1/24"
-                    >
+                    <textarea rows="4" value={introText} onChange={(e) => setIntroText(e.target.value)} className="w-5/6 border border-green-600 rounded py-2 px-3 text-sm bg-white" placeholder="Enter paragraph to add to Book Name..." />
+                    <select value={introClosingTag} onChange={(e) => setIntroClosingTag(e.target.value)} className="py-2 px-3 text-sm border border-green-600 rounded w-1/24">
                         <option value="">Close</option>
                         <option value="</i>">&lt;/i&gt;</option>
                         <option value="</b>">&lt;/b&gt;</option>
                         <option value="</u>">&lt;/u&gt;</option>
                     </select>
                 </div>
+                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-                    <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
-                    <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
-                    <button onClick={resetForm} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
-                    <button onClick={handleNextParagraph} className="bg-yellow-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><PlusSquare size={16} /> Add Paragraph</button>
-                    <button onClick={handleReviewBook} className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review Book</button>
+                {/* Editable Paragraphs List */}
+                {introParagraphs.map((para, index) => (
+                    <div key={index} className="flex items-center gap-2 mb-2">
+                        {editingIndex === index ? (
+                            <>
+                                <textarea
+                                    value={editingText}
+                                    onChange={(e) => setEditingText(e.target.value)}
+                                    className="w-full border border-green-600 rounded px-2 py-1 text-sm"
+                                />
+                                <button onClick={handleUpdateParagraph} className="text-white bg-green-600 rounded px-2 py-1">
+                                    <Check size={16} />
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <div
+                                    className="w-full border border-green-600 rounded px-2 py-1 text-sm bg-white"
+                                    dangerouslySetInnerHTML={{ __html: para }}
+                                />
+                                <button onClick={() => handleEditParagraph(index)} className="text-blue-600">
+                                    <Edit size={16} />
+                                </button>
+                                <button onClick={() => moveParagraph(index, -1)} disabled={index === 0} className="text-gray-700">
+                                    <ArrowUp size={16} />
+                                </button>
+                                <button onClick={() => moveParagraph(index, 1)} disabled={index === introParagraphs.length - 1} className="text-gray-700">
+                                    <ArrowDown size={16} />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                ))}
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                    {/* <button onClick={() => {}} className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                        <Edit size={16} /> Edit
+                    </button> */}
+                    <button onClick={resetForm} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                        <Trash2 size={16} /> Delete
+                    </button>
+                    <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                        <Save size={16} /> Save
+                    </button>
+                    <button onClick={handleNextParagraph} className="bg-teal-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                        <PlusSquare size={16} /> Add Paragraph
+                    </button>
+                    <button onClick={handleReviewBook} className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                        <BookOpen size={16} /> Review Book
+                    </button>
                 </div>
             </div>
         </div>

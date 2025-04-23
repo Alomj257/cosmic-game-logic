@@ -56,14 +56,14 @@ const Book = () => {
         <thead className="bg-green-800 text-white text-base">
           <tr className="h-16">
             <th className="border border-green-700 text-center px-2 py-2">Record No</th>
-            <th className="border border-green-700 text-center px-2 py-2">Book No</th>
+            <th className="border border-green-700 text-center px-2 py-2 ">Book No</th>
             <th className="border border-green-700 text-center px-2 py-2">Group Type</th>
             <th className="border border-green-700 text-center px-2 py-2">Tag Main Version ID</th>
-            <th className="border border-green-700 text-center px-2 py-2 w-[200px]">Tag Version H ID</th>
+            <th className="border border-green-700 text-center px-2 py-2 w-[180px]">Tag Version H ID</th>
             <th className="border border-green-700 text-center px-2 py-2">Tag Version E ID</th>
-            <th className="border border-green-700 text-center px-2 py-2">Book Name</th>
-            <th className="border border-green-700 text-center px-2 py-2 w-[200px]">Brief Intro</th>
-            <th className="border border-green-700 text-center px-2 py-2 w-[200px]">Author Notes</th>
+            <th className="border border-green-700 text-center px-2 py-2 w-[180px]">Book Name</th>
+            <th className="border border-green-700 text-center px-2 py-2 w-[180px]">Brief Intro</th>
+            <th className="border border-green-700 text-center px-2 py-2 w-[180px]">Author Notes</th>
             <th className="border border-green-700 text-center px-2 py-2 w-[100px]">Actions</th>
           </tr>
         </thead>
@@ -74,10 +74,10 @@ const Book = () => {
               <td className="border border-green-700 text-center px-2 py-2">{book.bookNumber || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.groupType || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.tagMainVersionId || '---'}</td>
-              <td className="border border-green-700 text-center px-2 py-2 w-[200px]">{(book.tagVersionHId || '').slice(0, 50)}</td>
+              <td className="border border-green-700 text-center px-2 py-2 w-[180px]">{(book.tagVersionHId || '').slice(0, 50)}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.tagVersionEId || '---'}</td>
-              <td className="border border-green-700 text-center px-2 py-2">{book.bookName || '---'}</td>
-              <td className="border border-green-700 text-left px-2 py-2 w-[200px]">
+              <td className="border border-green-700 text-center px-2 py-2 w-[180px]">{book.bookName || '---'}</td>
+              <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
                 {Array.isArray(book.briefIntroduction)
                   ? book.briefIntroduction.slice(0, 3).map((p, index) => {
                       const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
@@ -85,7 +85,7 @@ const Book = () => {
                     })
                   : '---'}
               </td>
-              <td className="border border-green-700 text-left px-2 py-2 w-[200px]">
+              <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
                 {book.authorNotes && book.authorNotes.length > 0
                   ? book.authorNotes.slice(0, 3).map((note, index) => {
                       const truncated = note.point.length > 30 ? note.point.slice(0, 30) + '...' : note.point;

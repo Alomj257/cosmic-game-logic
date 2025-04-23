@@ -336,21 +336,14 @@ const CreateNewBook = () => {
                     />
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                     <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
+                    <button
+                        onClick={handleNewBookClick} className="bg-gradient-to-r from-light-blue to-dark-pink bg-[length:200%_100%] animate-color-blink text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2 text-sm">
+                        <FilePlus size={16} /> Create New Book</button>
                     <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
                     <button onClick={handleDelete} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
                     <button onClick={() => setShowReviewModal(true)} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <button
-                        onClick={handleNewBookClick}
-                        className="bg-gradient-to-r from-light-blue to-dark-pink bg-[length:200%_100%] animate-color-blink text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2 text-sm"
-                    >
-                        <FilePlus size={16} /> Create New Book
-                    </button>
-
                 </div>
             </div>
         </div>
