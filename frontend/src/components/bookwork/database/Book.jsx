@@ -74,27 +74,23 @@ const Book = () => {
               <td className="border border-green-700 text-center px-2 py-2">{book.bookNumber || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.groupType || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.tagMainVersionId || '---'}</td>
-              <td className="border border-green-700 text-center px-2 py-2 w-[200px]">
-                {book.tagVersionHId || '---'}
-              </td>
+              <td className="border border-green-700 text-center px-2 py-2 w-[200px]">{(book.tagVersionHId || '').slice(0, 50)}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.tagVersionEId || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.bookName || '---'}</td>
               <td className="border border-green-700 text-left px-2 py-2 w-[200px]">
                 {Array.isArray(book.briefIntroduction)
-                  ? book.briefIntroduction
-                      .map((p, index) => {
-                        const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
-                        return <p key={index}>{truncated}</p>;
-                      })
+                  ? book.briefIntroduction.slice(0, 3).map((p, index) => {
+                      const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
+                      return <p key={index}>{truncated}</p>;
+                    })
                   : '---'}
               </td>
               <td className="border border-green-700 text-left px-2 py-2 w-[200px]">
                 {book.authorNotes && book.authorNotes.length > 0
-                  ? book.authorNotes
-                      .map((note, index) => {
-                        const truncated = note.point.length > 30 ? note.point.slice(0, 30) + '...' : note.point;
-                        return <p key={index}>{truncated}</p>;
-                      })
+                  ? book.authorNotes.slice(0, 3).map((note, index) => {
+                      const truncated = note.point.length > 30 ? note.point.slice(0, 30) + '...' : note.point;
+                      return <p key={index}>{truncated}</p>;
+                    })
                   : '---'}
               </td>
               <td className="border border-green-700 text-center px-2 py-2 space-x-2 w-[100px]">
@@ -134,6 +130,7 @@ const Book = () => {
         </tbody>
       </table>
 
+      {/* DELETE MODAL */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
           <div className="bg-green-100 border border-green-700 rounded-xl p-6 shadow-lg w-[90%] max-w-md text-center">
@@ -157,6 +154,7 @@ const Book = () => {
         </div>
       )}
 
+      {/* EDIT MODAL */}
       {showEditModal && editData && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
           <div className="bg-white rounded-xl p-6 shadow-lg w-[90%] max-w-2xl">
@@ -190,6 +188,7 @@ const Book = () => {
         </div>
       )}
 
+      {/* VIEW MODAL */}
       {viewData && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
           <div className="bg-white border border-green-700 rounded-xl p-6 shadow-lg w-[95%] max-w-4xl max-h-[80vh] overflow-auto">
