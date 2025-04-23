@@ -114,12 +114,12 @@ const BriefIntroduction = () => {
                 auto: false,
                 recordNumber: parseFloat(recordNumber).toFixed(2),
                 bookNumber,
-                bookName, // Only save the original book name
+                bookName,
                 groupType: selectedGroupType,
                 tagMainVersionId: selectedTagMainId,
                 tagVersionHId: openingTag,
                 tagVersionEId: closingTag,
-                briefIntroduction: introParagraphs.join('<br/>'), // Join paragraphs with line breaks
+                briefIntroduction: introParagraphs.map(p => ({ paragraph: p })) // <- fixed here
             };
             await createBook(payload);
             toast.success('Brief Introduction saved successfully!');
@@ -129,6 +129,7 @@ const BriefIntroduction = () => {
             toast.error('Failed to save brief introduction.');
         }
     };
+    
 
     const resetForm = () => {
         setRecordNumber('');
@@ -157,13 +158,13 @@ const BriefIntroduction = () => {
                     onClose={() => setShowReviewModal(false)}
                     recordMode="manual"
                     recordNumber={recordNumber}
-                    bookName={bookName} 
+                    bookName={bookName} // Only pass the book name without paragraphs
                     bookNumber={bookNumber}
                     groupType={selectedGroupType}
                     tagMainId={selectedTagMainId}
                     tagVersionHId={openingTag}
                     tagVersionEId={closingTag}
-                    briefIntroduction="" /> 
+                    briefIntroduction={introParagraphs} /> 
             )}
 
             {showRecordModal && (

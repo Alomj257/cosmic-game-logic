@@ -27,7 +27,6 @@ exports.createBook = async (req, res) => {
                 return res.status(400).json({ message: "Manual record number must be a valid number." });
             }
 
-            // Check if the record number already exists
             const existingBook = await Book.findOne({ recordNumber: manualRecord.toFixed(2) });
             if (existingBook) {
                 return res.status(400).json({ message: "This record number already exists. Please choose another." });

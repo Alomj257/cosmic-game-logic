@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bookSchema = new mongoose.Schema(
     {
         recordNumber: {
-            type: String, // Now stored as number (e.g. 1.00, 3.00)
+            type: String, // Stored as string (e.g. "1.00", "3.00")
             required: true
         },
         bookNumber: {
@@ -30,9 +30,9 @@ const bookSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        briefIntroduction: {
-            type: String
-        },
+        briefIntroduction: [{
+            paragraph: String
+        }],
         authorNotes: [{
             point: String
         }]
