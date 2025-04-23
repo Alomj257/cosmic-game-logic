@@ -34,21 +34,23 @@ const BriefIntroduction = () => {
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
 
+    const [introParagraphs, setIntroParagraphs] = useState([]); // Store all intro paragraphs separately
+
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
                 const tagsRes = await getAllTags();
                 const uniqueTypes = [...new Set(tagsRes.data.map(tag => tag.dataTypeCode))];
                 setGroupTypes(uniqueTypes);
-        
+
                 const booksRes = await getAllBooks();
                 setBooksList(booksRes.data);
-        
+
                 const uniqueRecordNumbers = [
                     ...new Set(booksRes.data.map(b => b.recordNumber).filter(Boolean))
                 ].sort((a, b) => parseFloat(a) - parseFloat(b));
                 setRecordNumbers(uniqueRecordNumbers);
-        
+
                 const uniqueBookNumbers = [
                     ...new Set(booksRes.data.map(b => b.bookNumber).filter(Boolean))
                 ].sort((a, b) => parseFloat(a) - parseFloat(b));
@@ -56,7 +58,7 @@ const BriefIntroduction = () => {
             } catch (err) {
                 console.error('Error loading initial data:', err);
             }
-        };        
+        };
 
         fetchInitialData();
     }, []);
@@ -91,15 +93,19 @@ const BriefIntroduction = () => {
     useEffect(() => {
         const selectedBook = booksList.find(b => b.bookNumber === bookNumber);
         setBookName(selectedBook?.bookName || '');
-        setBookNameHTML(selectedBook?.bookName || '');
+        setBookNameHTML(selectedBook?.bookName || ''); // Only store the Book Name initially, not paragraphs
     }, [bookNumber, booksList]);
 
     const handleNextParagraph = () => {
         if (!introText.trim()) return;
         const wrapped = `${introOpeningTag}${introText}${introClosingTag}`;
-        const updatedHTML = `${bookNameHTML}<br/>${wrapped}`;
-        setBookNameHTML(updatedHTML);
-        setIntroText('');
+        setIntroParagraphs(prev => {
+            const newIntroParagraphs = [...prev, wrapped];
+            const newBookNameHTML = `${bookName}<br/>${newIntroParagraphs.join('<br/>')}`; // Update bookNameHTML
+            setBookNameHTML(newBookNameHTML); // Update the bookNameHTML for display
+            return newIntroParagraphs;
+        });
+        setIntroText(''); // Reset the input field
     };
 
     const handleSave = async () => {
@@ -108,12 +114,12 @@ const BriefIntroduction = () => {
                 auto: false,
                 recordNumber: parseFloat(recordNumber).toFixed(2),
                 bookNumber,
-                bookName: bookNameHTML,
+                bookName, // Only save the original book name
                 groupType: selectedGroupType,
                 tagMainVersionId: selectedTagMainId,
                 tagVersionHId: openingTag,
                 tagVersionEId: closingTag,
-                briefIntroduction: '',
+                briefIntroduction: introParagraphs.join('<br/>'), // Join paragraphs with line breaks
             };
             await createBook(payload);
             toast.success('Brief Introduction saved successfully!');
@@ -128,7 +134,7 @@ const BriefIntroduction = () => {
         setRecordNumber('');
         setBookNumber('');
         setBookName('');
-        setBookNameHTML('');
+        setBookNameHTML(''); // Reset to only book name without paragraphs
         setIntroText('');
         setSelectedGroupType('');
         setTagMainIds([]);
@@ -137,6 +143,11 @@ const BriefIntroduction = () => {
         setClosingTag('');
         setIntroOpeningTag('');
         setIntroClosingTag('');
+        setIntroParagraphs([]); // Reset the paragraphs
+    };
+
+    const handleReviewBook = () => {
+        setShowReviewModal(true);
     };
 
     return (
@@ -146,14 +157,13 @@ const BriefIntroduction = () => {
                     onClose={() => setShowReviewModal(false)}
                     recordMode="manual"
                     recordNumber={recordNumber}
-                    bookName={bookNameHTML}
+                    bookName={bookName} 
                     bookNumber={bookNumber}
                     groupType={selectedGroupType}
                     tagMainId={selectedTagMainId}
                     tagVersionHId={openingTag}
                     tagVersionEId={closingTag}
-                    briefIntroduction=""
-                />
+                    briefIntroduction="" /> 
             )}
 
             {showRecordModal && (
@@ -275,8 +285,8 @@ const BriefIntroduction = () => {
                     <button className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Edit size={16} /> Edit</button>
                     <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Save size={16} /> Save</button>
                     <button onClick={resetForm} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><Trash2 size={16} /> Delete</button>
-                    <button onClick={handleNextParagraph} className="bg-pink-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><PlusSquare size={16} /> Next Paragraph</button>
-                    <button onClick={() => setShowReviewModal(true)} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review the BOOK</button>
+                    <button onClick={handleNextParagraph} className="bg-yellow-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><PlusSquare size={16} /> Add Paragraph</button>
+                    <button onClick={handleReviewBook} className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><BookOpen size={16} /> Review Book</button>
                 </div>
             </div>
         </div>
