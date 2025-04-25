@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { Edit, Save, Trash2, BookOpen, Info, PlusSquare, ArrowUp, ArrowDown, Check } from 'lucide-react';
 import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
@@ -37,16 +38,17 @@ const BriefIntroduction = () => {
     const modules = {
         toolbar: [
             [{ 'header': '1' }, { 'header': '2' }],
-            [{ 'font': [] }, { 'size': ['10px', '12px', '14px', '16px', '18px'] }],  // Font size options
+            [{ 'font': [] }, { 'size': ['small', 'medium', 'large'] }],
             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
             ['bold', 'italic', 'underline'],
             ['link'],
             [{ 'align': [] }],
             ['blockquote', 'code-block'],
             [{ 'color': [] }, { 'background': [] }],
-            ['image'] // Optional: For image upload option
-        ],
+            ['image'] // Optional: Image upload button
+        ]
     };
+    
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
