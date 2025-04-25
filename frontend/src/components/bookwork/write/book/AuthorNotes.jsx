@@ -50,14 +50,9 @@ const AuthorNotes = () => {
         setSavedNotes(newNotes);
     };
 
-    const saveIndividualNote = async (note) => {
-        try {
-            const payload = { note };
-            // await axios.post('http://localhost:8000/api/save-note', payload);
-            console.log('Individual note saved:', payload);
-        } catch (error) {
-            console.error('Error saving individual note:', error);
-        }
+    // This function will update all edited notes in the preview
+    const updatePoints = () => {
+        setIsEditing(false);
     };
 
     return (
@@ -94,7 +89,7 @@ const AuthorNotes = () => {
                                                         type="text"
                                                         value={note}
                                                         onChange={(e) => handleNoteChange(index, e.target.value)}
-                                                        className="w-4/5 border border-green-600 rounded px-2 py-1 text-sm"
+                                                        className="w-5/6 border border-green-600 rounded px-2 py-1 text-sm"
                                                     />
                                                     <div className="flex gap-2 mt-1">
                                                         <button onClick={() => moveNote(index, 'up')} className="text-blue-600" title="Move up">
@@ -106,9 +101,6 @@ const AuthorNotes = () => {
                                                         <button onClick={() => deleteNote(index)} className="text-red-600" title="Delete">
                                                             <X size={16} />
                                                         </button>
-                                                        <button onClick={() => saveIndividualNote(note)} className="text-green-600" title="Save note">
-                                                            <Check size={16} />
-                                                        </button>
                                                     </div>
                                                 </>
                                             ) : (
@@ -117,6 +109,19 @@ const AuthorNotes = () => {
                                         </li>
                                     ))}
                                 </ul>
+                            )}
+
+                            {/* Update Preview Button */}
+                            {isEditing && (
+                                <div className="mt-4 flex justify-center">
+                                <button
+                                    onClick={updatePoints}
+                                    className="bg-green-600 text-white font-bold py-2 px-8 rounded flex items-center justify-center gap-2 text-sm"
+                                >
+                                    <Check size={16} /> Update Points
+                                </button>
+                            </div>
+                            
                             )}
                         </div>
                     </div>
@@ -128,9 +133,13 @@ const AuthorNotes = () => {
                         className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
                         onClick={() => setIsEditing(!isEditing)}
                     >
-                        <Edit size={16} /> {isEditing ? 'Cancel Edit' : 'Edit'}
+                        {isEditing ? (
+                            <X size={16} />
+                        ) : (
+                            <Edit size={16} />
+                        )}
+                        {isEditing ? 'Cancel' : 'Edit'}
                     </button>
-
                     <button
                         className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
                         onClick={() => {
@@ -142,7 +151,12 @@ const AuthorNotes = () => {
                         <Trash2 size={16} /> Delete
                     </button>
 
-                    <button className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm" onClick={handleSaveNotes}><Save size={16} /> Save</button>
+                    <button
+                        className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
+                        onClick={handleSaveNotes}
+                    >
+                        <Save size={16} /> Save Notes
+                    </button>
 
                     <button
                         className="bg-teal-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
@@ -151,7 +165,9 @@ const AuthorNotes = () => {
                         <PlusSquare size={16} /> Next Point
                     </button>
 
-                    <button className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                    <button
+                        className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
+                    >
                         <BookOpen size={16} /> Review Book
                     </button>
                 </div>
