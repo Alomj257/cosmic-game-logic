@@ -3,6 +3,7 @@ import {
     Edit, Trash2, PlusSquare, BookOpen, ArrowUp, ArrowDown, X, Check, Save
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import ReviewModal from './models/ReviewModal';
 import { getAllBooks, createBook } from '../../../../services/api';
 
 const AuthorNotes = () => {
@@ -14,6 +15,7 @@ const AuthorNotes = () => {
     const [savedNotes, setSavedNotes] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [manualRecordNumber, setManualRecordNumber] = useState('');
+    const [showReviewModal, setShowReviewModal] = useState(false);
 
     useEffect(() => {
         const fetchBooks = async () => {
@@ -256,12 +258,29 @@ const AuthorNotes = () => {
                     </button>
 
                     <button
+                        onClick={() => setShowReviewModal(true)}
                         className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
                     >
                         <BookOpen size={16} /> Review Book
                     </button>
                 </div>
             </div>
+
+            {showReviewModal && (
+                <ReviewModal
+                    onClose={() => setShowReviewModal(false)}
+                    recordMode={manual}
+                    recordNumber={recordNumber}
+                    bookNumber={bookNumber}
+                    bookName={bookName}
+                    groupType={createGroupType}
+                    tagMainId={createSelectedMainId}
+                    tagVersionHId={createOpeningTag}
+                    tagVersionEId={createClosingTag}
+                    briefIntroduction={briefIntroduction}
+                    authorNotes={authorNotes}                   
+                />
+            )}
         </div>
     );
 };
