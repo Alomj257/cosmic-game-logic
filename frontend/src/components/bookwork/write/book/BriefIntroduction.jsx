@@ -36,13 +36,16 @@ const BriefIntroduction = () => {
     // Quill configurations
     const modules = {
         toolbar: [
-            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ 'header': '1' }, { 'header': '2' }],
+            [{ 'font': [] }, { 'size': ['10px', '12px', '14px', '16px', '18px'] }],  // Font size options
             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
             ['bold', 'italic', 'underline'],
             ['link'],
             [{ 'align': [] }],
-            ['blockquote', 'code-block']
-        ]
+            ['blockquote', 'code-block'],
+            [{ 'color': [] }, { 'background': [] }],
+            ['image'] // Optional: For image upload option
+        ],
     };
     useEffect(() => {
         const fetchInitialData = async () => {
