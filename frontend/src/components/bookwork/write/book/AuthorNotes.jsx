@@ -1,22 +1,62 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Edit, Trash2, PlusSquare, BookOpen, ArrowUp, ArrowDown, X, Check, Save
 } from 'lucide-react';
+import { getAllBooks, createBook } from '../../../../services/api';
 
 const AuthorNotes = () => {
+    const [books, setBooks] = useState([]);
+    const [bookNumbers, setBookNumbers] = useState([]);
+    const [selectedBookNumber, setSelectedBookNumber] = useState('');
+    const [selectedBook, setSelectedBook] = useState(null);
     const [notesInput, setNotesInput] = useState('');
     const [savedNotes, setSavedNotes] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
 
-    // SAVE NOTES API END POINT WILL BE HERE
+    useEffect(() => {
+        const fetchBooks = async () => {
+            try {
+                const response = await getAllBooks();
+                const allBooks = response.data || [];
+
+                const booksWithIntro = allBooks.filter(b => Array.isArray(b.briefIntroduction) && b.briefIntroduction.length > 0);
+                const uniqueBookNumbers = [...new Set(booksWithIntro.map(b => b.bookNumber))];
+
+                setBooks(booksWithIntro);
+                setBookNumbers(uniqueBookNumbers);
+            } catch (error) {
+                console.error("Error fetching books:", error);
+            }
+        };
+        fetchBooks();
+    }, []);
+
+    const handleBookNumberChange = (e) => {
+        const selectedNumber = e.target.value;
+        setSelectedBookNumber(selectedNumber);
+        const matchedBook = books.find(b => b.bookNumber === selectedNumber);
+        setSelectedBook(matchedBook || null);
+    };
+
     const handleSaveNotes = async () => {
-        const lines = notesInput.split('\n').filter(line => line.trim() !== '');
-        setSavedNotes(lines);
+        if (!selectedBook) return alert("Please select a book first.");
+        const notesToSave = savedNotes.map(point => ({ point }));
+
+        const payload = {
+            recordNumber: selectedBook.recordNumber,
+            bookNumber: selectedBook.bookNumber,
+            groupType: selectedBook.groupType,
+            tagMainVersionId: selectedBook.tagMainVersionId,
+            tagVersionHId: selectedBook.tagVersionHId,
+            tagVersionEId: selectedBook.tagVersionEId,
+            bookName: selectedBook.bookName,
+            briefIntroduction: selectedBook.briefIntroduction,
+            authorNotes: notesToSave,
+        };
 
         try {
-            const payload = { notes: lines };
-            // await axios.post('http://localhost:8000/api/your-endpoint', payload);
-            console.log("Notes prepared to be saved:", payload);
+            await createBook(payload);
+            alert('Author notes saved successfully!');
         } catch (error) {
             console.error("Error saving notes:", error);
         }
@@ -50,7 +90,6 @@ const AuthorNotes = () => {
         setSavedNotes(newNotes);
     };
 
-    // This function will update all edited notes in the preview
     const updatePoints = () => {
         setIsEditing(false);
     };
@@ -60,8 +99,35 @@ const AuthorNotes = () => {
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">AUTHOR'S NOTE PAD</h2>
 
+                <div className="mb-6 flex flex-col md:flex-row md:items-end gap-6">
+                    {/* Book Number Dropdown */}
+                    <div className="flex-1">
+                        <label className="block font-bold text-green-900 mb-2">Select Book Number</label>
+                        <select
+                            value={selectedBookNumber}
+                            onChange={handleBookNumberChange}
+                            className="w-full border border-green-600 rounded py-2 px-3"
+                        >
+                            <option value="">-- Choose Book Number --</option>
+                            {bookNumbers.map((num, i) => (
+                                <option key={i} value={num}>{num}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Book Name Display */}
+                    {selectedBook && (
+                        <div className="flex-1">
+                            <label className="block font-bold text-green-900 mb-2">Book Name</label>
+                            <div className="w-full border border-green-600 rounded py-2 px-3 bg-gray-50 text-green-700">
+                                {selectedBook.bookName}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {/* Left input */}
+                    {/* Notes Input */}
                     <div>
                         <label className="block text-base font-bold text-green-900 mb-2">Write your notes</label>
                         <textarea
@@ -73,7 +139,7 @@ const AuthorNotes = () => {
                         />
                     </div>
 
-                    {/* Right preview */}
+                    {/* Notes Preview */}
                     <div>
                         <label className="block text-base font-bold text-green-900 mb-2">Points Preview</label>
                         <div className="border border-green-600 rounded p-4 h-[300px] overflow-y-auto bg-white">
@@ -110,36 +176,30 @@ const AuthorNotes = () => {
                                     ))}
                                 </ul>
                             )}
-
-                            {/* Update Preview Button */}
                             {isEditing && (
                                 <div className="mt-4 flex justify-center">
-                                <button
-                                    onClick={updatePoints}
-                                    className="bg-green-600 text-white font-bold py-2 px-8 rounded flex items-center justify-center gap-2 text-sm"
-                                >
-                                    <Check size={16} /> Update Points
-                                </button>
-                            </div>
-                            
+                                    <button
+                                        onClick={updatePoints}
+                                        className="bg-green-600 text-white font-bold py-2 px-8 rounded flex items-center justify-center gap-2 text-sm"
+                                    >
+                                        <Check size={16} /> Update Points
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Bottom Buttons */}
+                {/* Action Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <button
                         className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
                         onClick={() => setIsEditing(!isEditing)}
                     >
-                        {isEditing ? (
-                            <X size={16} />
-                        ) : (
-                            <Edit size={16} />
-                        )}
+                        {isEditing ? <X size={16} /> : <Edit size={16} />}
                         {isEditing ? 'Cancel' : 'Edit'}
                     </button>
+
                     <button
                         className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
                         onClick={() => {
