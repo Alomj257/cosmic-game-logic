@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import './Book.css';
 import { Edit, Save, Trash2, BookOpen, Info, PlusSquare, ArrowUp, ArrowDown, Check } from 'lucide-react';
 import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
@@ -48,7 +49,7 @@ const BriefIntroduction = () => {
             ['image'] // Optional: Image upload button
         ]
     };
-    
+
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
@@ -110,9 +111,14 @@ const BriefIntroduction = () => {
     }, [bookNumber, booksList]);
 
     const updateBookNameHTML = (paragraphs) => {
-        const formatted = [bookName, ...paragraphs].join('<br/>');
+        // Wrap book name in a div with the class 'book-name'
+        const formatted = `
+            <div class="book-name">${bookName}</div>
+            <div class="paragraphs">${paragraphs.join('<br/>')}</div>
+        `;
         setBookNameHTML(formatted);
-    }
+    };
+
 
     const handleNextParagraph = () => {
         if (!editingText.trim()) return;
@@ -294,6 +300,7 @@ const BriefIntroduction = () => {
                     />
                 </div>
 
+
                 {/* Paragraph Input Section */}
                 <div className="mb-6">
                     <label className="font-bold text-left text-xl text-green-900 block mb-2">Write your Introduction</label>
@@ -307,49 +314,49 @@ const BriefIntroduction = () => {
 
                 {/* Editable Paragraphs List */}
                 {introParagraphs.length > 0 && (
-                <div>
-                    {introParagraphs.map((para, index) => (
-                        <div key={index} className="flex items-center gap-2 mb-2">
-                            {editingIndex === index ? (
-                                <>
-                                    <textarea
-                                        value={editingText}
-                                        onChange={(e) => setEditingText(e.target.value)}
-                                        className="w-full border border-green-600 rounded px-2 py-1 text-sm"
-                                    />
-                                    <button onClick={handleUpdateParagraph} className="text-white bg-green-600 rounded px-2 py-1">
-                                        <Check size={16} />
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <div
-                                        className="w-full border border-green-600 rounded px-2 py-1 text-sm bg-white"
-                                        dangerouslySetInnerHTML={{ __html: para }}
-                                    />
-                                    <button onClick={() => handleEditParagraph(index)} className="text-blue-600">
-                                        <Edit size={16} />
-                                    </button>
-                                    <button 
-                                        onClick={() => moveParagraph(index, -1)} 
-                                        disabled={index === 0} 
-                                        className="text-gray-700"
-                                    >
-                                        <ArrowUp size={16} />
-                                    </button>
-                                    <button 
-                                        onClick={() => moveParagraph(index, 1)} 
-                                        disabled={index === introParagraphs.length - 1} 
-                                        className="text-gray-700"
-                                    >
-                                        <ArrowDown size={16} />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
+                    <div>
+                        {introParagraphs.map((para, index) => (
+                            <div key={index} className="flex items-center gap-2 mb-2">
+                                {editingIndex === index ? (
+                                    <>
+                                        <textarea
+                                            value={editingText}
+                                            onChange={(e) => setEditingText(e.target.value)}
+                                            className="w-full border border-green-600 rounded px-2 py-1 text-sm"
+                                        />
+                                        <button onClick={handleUpdateParagraph} className="text-white bg-green-600 rounded px-2 py-1">
+                                            <Check size={16} />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div
+                                            className="w-full border border-green-600 rounded px-2 py-1 text-sm bg-white"
+                                            dangerouslySetInnerHTML={{ __html: para }}
+                                        />
+                                        <button onClick={() => handleEditParagraph(index)} className="text-blue-600">
+                                            <Edit size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => moveParagraph(index, -1)}
+                                            disabled={index === 0}
+                                            className="text-gray-700"
+                                        >
+                                            <ArrowUp size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => moveParagraph(index, 1)}
+                                            disabled={index === introParagraphs.length - 1}
+                                            className="text-gray-700"
+                                        >
+                                            <ArrowDown size={16} />
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
