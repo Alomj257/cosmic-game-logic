@@ -20,11 +20,15 @@ const bookSchema = new mongoose.Schema(
         },
         tagVersionHId: {
             type: String,
-            required: true
+            required: true,
+            minlength: 1,
+            maxlength: 10000 // Adjust as needed to handle large HTML blocks
         },
         tagVersionEId: {
             type: String,
-            required: true
+            required: true,
+            minlength: 1,
+            maxlength: 10000
         },
         bookName: {
             type: String,

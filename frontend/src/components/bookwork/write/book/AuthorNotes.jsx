@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Edit, Trash2, PlusSquare, BookOpen, ArrowUp, ArrowDown, X, Check, Save
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { getAllBooks, createBook } from '../../../../services/api';
 
 const AuthorNotes = () => {
@@ -12,6 +13,7 @@ const AuthorNotes = () => {
     const [notesInput, setNotesInput] = useState('');
     const [savedNotes, setSavedNotes] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [manualRecordNumber, setManualRecordNumber] = useState('');
 
     useEffect(() => {
         const fetchBooks = async () => {
@@ -39,26 +41,36 @@ const AuthorNotes = () => {
     };
 
     const handleSaveNotes = async () => {
-        if (!selectedBook) return alert("Please select a book first.");
-        const notesToSave = savedNotes.map(point => ({ point }));
+        const lines = savedNotes.map(point => ({ point }));
 
-        const payload = {
-            recordNumber: selectedBook.recordNumber,
-            bookNumber: selectedBook.bookNumber,
-            groupType: selectedBook.groupType,
-            tagMainVersionId: selectedBook.tagMainVersionId,
-            tagVersionHId: selectedBook.tagVersionHId,
-            tagVersionEId: selectedBook.tagVersionEId,
-            bookName: selectedBook.bookName,
-            briefIntroduction: selectedBook.briefIntroduction,
-            authorNotes: notesToSave,
-        };
+        if (!selectedBook) {
+            console.error("Book not selected");
+            return;
+        }
+
+        if (!manualRecordNumber) {
+            console.error("Record Number is required");
+            return;
+        }
 
         try {
+            const payload = {
+                recordNumber: manualRecordNumber.trim(),
+                bookNumber: selectedBook.bookNumber,
+                groupType: selectedBook.groupType,
+                tagMainVersionId: selectedBook.tagMainVersionId,
+                tagVersionHId: selectedBook.tagVersionHId,
+                tagVersionEId: selectedBook.tagVersionEId,
+                bookName: selectedBook.bookName,
+                briefIntroduction: selectedBook.briefIntroduction || [],
+                authorNotes: lines
+            };
+
             await createBook(payload);
-            alert('Author notes saved successfully!');
+            toast.success("Saved notes successfully:", payload);
         } catch (error) {
-            console.error("Error saving notes:", error);
+            console.error("Error saving notes:", error.response?.data || error.message);
+            toast.error("Error saving notes to the database");
         }
     };
 
@@ -98,26 +110,40 @@ const AuthorNotes = () => {
         <div className="p-4 md:p-8 flex flex-col items-center gap-10">
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">AUTHOR'S NOTE PAD</h2>
+                <div className="mb-6 flex flex-col md:flex-row gap-6">
+                    {/* Left Half - Record Number Input and Book Number Dropdown */}
+                    <div className="flex md:w-1/2 gap-6">
+                        {/* Manual Record Number */}
+                        <div className="flex-1">
+                            <label className="block font-bold text-green-900 mb-2">Record Number</label>
+                            <input
+                                type="text"
+                                value={manualRecordNumber}
+                                onChange={(e) => setManualRecordNumber(e.target.value)}
+                                className="w-full border border-green-600 rounded py-2 px-3"
+                                placeholder="e.g., 4.00"
+                            />
+                        </div>
 
-                <div className="mb-6 flex flex-col md:flex-row md:items-end gap-6">
-                    {/* Book Number Dropdown */}
-                    <div className="flex-1">
-                        <label className="block font-bold text-green-900 mb-2">Select Book Number</label>
-                        <select
-                            value={selectedBookNumber}
-                            onChange={handleBookNumberChange}
-                            className="w-full border border-green-600 rounded py-2 px-3"
-                        >
-                            <option value="">-- Choose Book Number --</option>
-                            {bookNumbers.map((num, i) => (
-                                <option key={i} value={num}>{num}</option>
-                            ))}
-                        </select>
+                        {/* Book Number Dropdown */}
+                        <div className="flex-1">
+                            <label className="block font-bold text-green-900 mb-2">Book Number</label>
+                            <select
+                                value={selectedBookNumber}
+                                onChange={handleBookNumberChange}
+                                className="w-full border border-green-600 rounded py-2 px-3"
+                            >
+                                <option value="">Select Book No</option>
+                                {bookNumbers.map((num, i) => (
+                                    <option key={i} value={num}>{num}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
-                    {/* Book Name Display */}
+                    {/* Right Half - Book Name Display */}
                     {selectedBook && (
-                        <div className="flex-1">
+                        <div className="flex-1 md:w-1/2">
                             <label className="block font-bold text-green-900 mb-2">Book Name</label>
                             <div className="w-full border border-green-600 rounded py-2 px-3 bg-gray-50 text-green-700">
                                 {selectedBook.bookName}
@@ -131,7 +157,7 @@ const AuthorNotes = () => {
                     <div>
                         <label className="block text-base font-bold text-green-900 mb-2">Write your notes</label>
                         <textarea
-                            rows="14"
+                            rows="11"
                             value={notesInput}
                             onChange={(e) => setNotesInput(e.target.value)}
                             className="w-full border border-green-600 rounded py-2 px-3 text-sm bg-white"
@@ -142,7 +168,7 @@ const AuthorNotes = () => {
                     {/* Notes Preview */}
                     <div>
                         <label className="block text-base font-bold text-green-900 mb-2">Points Preview</label>
-                        <div className="border border-green-600 rounded p-4 h-[300px] overflow-y-auto bg-white">
+                        <div className="border border-green-600 rounded p-4 h-[240px] overflow-y-auto bg-white">
                             {savedNotes.length === 0 ? (
                                 <p className="text-gray-400 text-sm italic">Nothing saved yet...</p>
                             ) : (
@@ -206,6 +232,10 @@ const AuthorNotes = () => {
                             setNotesInput('');
                             setSavedNotes([]);
                             setIsEditing(false);
+                            setManualRecordNumber('');
+                            setNotesInput('');
+                            setSelectedBookNumber('');
+                            setSelectedBook(null);
                         }}
                     >
                         <Trash2 size={16} /> Delete
