@@ -3,7 +3,7 @@ import React from 'react';
 const ContentViewer = ({ content }) => {
     if (!content) {
         return (
-            <div className="text-gray-500">
+            <div className="text-gray-500 p-4 text-center">
                 Select a book, chapter, or heading to view the content
             </div>
         );
