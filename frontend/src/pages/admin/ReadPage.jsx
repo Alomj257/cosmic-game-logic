@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BookTree from '../../components/bookwork/read/BookTree';
 import ContentViewer from '../../components/bookwork/read/ContentViewer';
-import { getAllBooks } from '../../services/api'; // <- use your API function
+import { getAllBooks } from '../../services/api';
 
 const ReadPage = () => {
   const [books, setBooks] = useState([]);
@@ -43,7 +43,7 @@ const ReadPage = () => {
       </div>
 
       {/* Right Content Area */}
-      <div className="flex-1 overflow-y-scroll scrollbar-hide p-6 bg-white">
+      <div className="flex-1 overflow-y-scroll scrollbar-hide bg-white">
         <ContentViewer content={selectedContent} />
       </div>
     </div>
