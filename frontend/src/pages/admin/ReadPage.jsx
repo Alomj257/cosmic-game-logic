@@ -11,16 +11,15 @@ const ReadPage = () => {
     const fetchBooks = async () => {
       try {
         const response = await getAllBooks();
-        // Filter books that have non-empty bookName, briefIntroduction, and authorNotes
         const filteredBooks = response.data.filter(book => 
           book.bookName && 
           Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0 && 
           Array.isArray(book.authorNotes) && book.authorNotes.length > 0
         );
-        setBooks(filteredBooks); // Set filtered books
+        setBooks(filteredBooks);
       } catch (error) {
         console.error('Error fetching books:', error);
-        setBooks([]); // Prevent further errors if fetch fails
+        setBooks([]);
       }
     };
 
@@ -32,9 +31,9 @@ const ReadPage = () => {
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-screen">
       {/* Left Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto p-4 bg-gray-50" style={{ height: '100vh' }}>
+      <div className="w-1/3 border-r overflow-y-auto p-4 bg-gray-50 hide-scrollbar">
         <h2 className="text-xl font-bold mb-4">📚 Books</h2>
         {books.length === 0 ? (
           <p>No books available with complete data.</p>
@@ -43,8 +42,8 @@ const ReadPage = () => {
         )}
       </div>
 
-      {/* Right Content */}
-      <div className="flex-1 overflow-y-auto p-6" style={{ height: '100vh' }}>
+      {/* Right Content Area */}
+      <div className="flex-1 overflow-y-scroll scrollbar-hide p-6 bg-white">
         <ContentViewer content={selectedContent} />
       </div>
     </div>

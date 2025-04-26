@@ -16,15 +16,8 @@ html, body {
   scrollbar-width: none;  
 }
 
-body {
-  overflow: hidden;
-}
-
-#root, .App {
-  height: 100%;
-}
-
 .ReadPage {
   display: flex;
   height: 100vh;
 }
+

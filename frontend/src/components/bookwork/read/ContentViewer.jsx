@@ -6,13 +6,13 @@ const ContentViewer = ({ content }) => {
   }
 
   return (
-    <div className="h-screen p-4 flex flex-col items-center justify-center">
+    <div className="h-screen p-4 flex flex-col overflow-y-auto scrollbar-hide">
       {/* Outer container with two brown borders and rounded corners */}
       <div className="relative p-4 w-full h-full flex flex-col">
-        {/* Outer Border - Brown Border 1 (Narrower) */}
+        {/* Outer Border - Brown Border 1 */}
         <div className="absolute inset-0 border-2 border-brown-600 rounded-lg"></div>
 
-        {/* Inner Border - Brown Border 2 (Narrower) */}
+        {/* Inner Border - Brown Border 2 */}
         <div className="absolute inset-1 border-2 border-brown-500 rounded-lg"></div>
 
         {/* Inner container with content */}
@@ -22,13 +22,12 @@ const ContentViewer = ({ content }) => {
             {content.bookName || content.chapterName || content.headingName || content.subHeadingName || content.subSubHeadingName}
           </h1>
 
-          {/* Scrollable content inside the bordered container */}
-          <div className="overflow-y-auto p-4 flex-1">
+          {/* Content area */}
+          <div className="px-2 pb-6 bg-white">
             {content.briefIntroduction && (
               <div className="prose max-w-none text-justify">
-                {/* Iterate over briefIntroduction array and render each paragraph as HTML */}
                 {content.briefIntroduction.map((item) => (
-                  <div key={item._id} dangerouslySetInnerHTML={{ __html: item.paragraph }} /> // Render as HTML
+                  <div key={item._id} dangerouslySetInnerHTML={{ __html: item.paragraph }} />
                 ))}
               </div>
             )}

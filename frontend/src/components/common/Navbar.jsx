@@ -38,7 +38,7 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className="sticky top-0 z-50 bg-gray-900 text-gray-300 h-[64px] px-10 flex justify-between items-center shadow-md">
+            <nav className="sticky top-0 z-50 bg-gray-900 text-gray-300 h-[60px] px-10 flex justify-between items-center shadow-md">
                 {/* Logo */}
                 <div className="text-2xl font-bold tracking-wide">
                     <Link to="/" className="hover:text-gray-100 transition">CGL</Link>
