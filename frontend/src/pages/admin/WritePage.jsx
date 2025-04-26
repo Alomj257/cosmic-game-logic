@@ -88,7 +88,7 @@ const WritePage = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col h-[90vh]">
       {/* Sticky and padded Tabs header */}
       <div className="sticky top-0 z-30 bg-white px-10 py-2 border-gray-200">
         <Tabs
