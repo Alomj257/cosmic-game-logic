@@ -11,13 +11,13 @@ const ContentViewer = ({ content }) => {
 
     return (
         <div className="p-2 flex flex-col rounded-lg">
-            {/* Outer container with two green borders and rounded corners */}
-            <div className="relative w-full flex flex-col bg-green-100">
-                {/* Outer Border - green Border 1 */}
-                <div className="absolute inset-0 border-2 border-green-600 rounded-lg"></div>
+            {/* Outer container with two brown borders and rounded corners */}
+            <div className="relative w-full flex flex-col bg-brown-100">
+                {/* Outer Border - brown Border 1 */}
+                <div className="absolute inset-0 border-2 border-brown-600 rounded-lg"></div>
 
-                {/* Inner Border - green Border 2 */}
-                <div className="absolute inset-1 border-2 border-green-600 rounded-lg"></div>
+                {/* Inner Border - brown Border 2 */}
+                <div className="absolute inset-1 border-2 border-brown-600 rounded-lg"></div>
 
                 {/* Inner content */}
                 <div className="relative z-10 flex flex-col p-4">
