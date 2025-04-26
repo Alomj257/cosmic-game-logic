@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 
 const ReviewModal = ({
     onClose,
@@ -10,76 +11,88 @@ const ReviewModal = ({
     tagMainId,
     tagVersionHId,
     tagVersionEId,
-    briefIntroduction, // Add the briefIntroduction prop
-    authorNotes // Add the authorNotes prop
+    briefIntroduction
 }) => {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg border border-green-700 w-full max-w-2xl">
-                <h3 className="text-2xl font-bold text-green-800 mb-4 text-center">Review Book Details</h3>
-                <div className="space-y-2 text-green-900 text-sm">
-                    <p><span className="font-semibold">Record Mode:</span> {recordMode || 'N/A'}</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg border border-green-700 w-full max-w-3xl relative overflow-y-auto max-h-[90vh]">
 
-                    {recordMode === 'manual' && recordNumber && (
-                        <p><span className="font-semibold">Record Number:</span> {recordNumber}</p>
-                    )}
+                {/* Close Button */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 text-red-600 hover:text-red-800"
+                >
+                    <X size={24} />
+                </button>
 
-                    {bookNumber && (
-                        <p><span className="font-semibold">Book Number:</span> {bookNumber}</p>
-                    )}
+                {/* Modal Heading */}
+                <h3 className="text-2xl font-bold text-green-700 mb-6 text-center underline">
+                    Review Book Details
+                </h3>
 
-                    {bookName && (
-                        <p><span className="font-semibold">Book Name:</span> {bookName}</p>
-                    )}
+                {/* Basic Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6 text-gray-900">
+                    <div>
+                        <span className="text-green-700 font-semibold">Record Mode:</span> 
+                        <span className="ml-1">{recordMode || ''}</span>
+                    </div>
 
-                    {groupType && (
-                        <p><span className="font-semibold">Group Type:</span> {groupType}</p>
-                    )}
+                    <div>
+                        <span className="text-green-700 font-semibold">Record Number:</span> 
+                        <span className="ml-1">{recordNumber || ''}</span>
+                    </div>
 
-                    {tagMainId && (
-                        <p><span className="font-semibold">Tag Main Version ID:</span> {tagMainId}</p>
-                    )}
+                    <div>
+                        <span className="text-green-700 font-semibold">Book Number:</span> 
+                        <span className="ml-1">{bookNumber || ''}</span>
+                    </div>
 
-                    {tagVersionHId && (
-                        <p><span className="font-semibold">Tag Version H. ID:</span> {tagVersionHId}</p>
-                    )}
+                    <div>
+                        <span className="text-green-700 font-semibold">Group Type:</span> 
+                        <span className="ml-1">{groupType || ''}</span>
+                    </div>
 
-                    {tagVersionEId && (
-                        <p><span className="font-semibold">Tag Version E. ID:</span> {tagVersionEId}</p>
-                    )}
+                    <div>
+                        <span className="text-green-700 font-semibold">Tag Main Version ID:</span> 
+                        <span className="ml-1">{tagMainId || ''}</span>
+                    </div>
 
-                    {briefIntroduction && briefIntroduction.length > 0 && (
-                        <div>
-                            <span className="font-semibold">Brief Introduction:</span>
-                            <ul className="ml-4 list-disc">
-                                {briefIntroduction.map((intro, index) => (
-                                    <li key={index} className="text-sm">{intro}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                    <div>
+                        <span className="text-green-700 font-semibold">Tag Version H. ID:</span> 
+                        <span className="ml-1">{tagVersionHId || ''}</span>
+                    </div>
 
-                    {/* Author Notes Section */}
-                    {authorNotes && authorNotes.length > 0 && (
-                        <div>
-                            <span className="font-semibold">Author's Notes:</span>
-                            <ul className="ml-4 list-disc">
-                                {authorNotes.map((note, index) => (
-                                    <li key={index} className="text-sm">{note}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                    <div>
+                        <span className="text-green-700 font-semibold">Tag Version E. ID:</span> 
+                        <span className="ml-1">{tagVersionEId || ''}</span>
+                    </div>
                 </div>
 
-                <div className="flex justify-end mt-6">
-                    <button
-                        onClick={onClose}
-                        className="bg-green-600 text-white px-4 py-2 rounded font-bold"
-                    >
-                        Close
-                    </button>
+                {/* Book Name */}
+                <div className="mb-6">
+                    <h4 className="text-xl font-bold text-green-700 mb-2">Book Name</h4>
+                    <div className="border border-green-600 rounded p-3 bg-gray-50 text-gray-900 text-sm leading-relaxed min-h-[50px]"
+                        dangerouslySetInnerHTML={{ __html: bookName || '' }}
+                    />
                 </div>
+
+                {/* Brief Introduction */}
+                <div className="mb-6">
+                    <h4 className="text-xl font-bold text-green-700 mb-2">Brief Introduction</h4>
+                    <div className="border border-green-600 rounded p-3 bg-gray-50 text-gray-900 space-y-3 text-sm leading-relaxed min-h-[50px]">
+                        {briefIntroduction && briefIntroduction.length > 0 ? (
+                            briefIntroduction.map((intro, idx) => (
+                                <div
+                                    key={idx}
+                                    dangerouslySetInnerHTML={{ __html: intro }}
+                                />
+                            ))
+                        ) : (
+                            <div>No Introduction</div>
+                        )}
+                    </div>
+                </div>
+
             </div>
         </div>
     );

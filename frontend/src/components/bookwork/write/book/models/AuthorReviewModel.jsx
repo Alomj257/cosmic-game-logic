@@ -25,27 +25,27 @@ const AuthoReviewModel = ({ isOpen, onClose, recordNumber, bookDetails, authorNo
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
                     <div>
                         <span className="text-green-700 font-semibold">Record Number:</span> 
-                        <span className="text-gray-800 ml-1">{recordNumber || '-'}</span>
+                        <span className="text-gray-800 ml-1">{recordNumber}</span>
                     </div>
                     <div>
                         <span className="text-green-700 font-semibold">Book Number:</span> 
-                        <span className="text-gray-800 ml-1">{bookDetails?.bookNumber || '-'}</span>
+                        <span className="text-gray-800 ml-1">{bookDetails?.bookNumber}</span>
                     </div>
                     <div>
                         <span className="text-green-700 font-semibold">Group Type:</span> 
-                        <span className="text-gray-800 ml-1">{bookDetails?.groupType || '-'}</span>
+                        <span className="text-gray-800 ml-1">{bookDetails?.groupType}</span>
                     </div>
                     <div>
                         <span className="text-green-700 font-semibold">Tag Main Version ID:</span> 
-                        <span className="text-gray-800 ml-1">{bookDetails?.tagMainVersionId || '-'}</span>
+                        <span className="text-gray-800 ml-1">{bookDetails?.tagMainVersionId}</span>
                     </div>
                     <div>
                         <span className="text-green-700 font-semibold">Tag Version H ID:</span> 
-                        <span className="text-gray-800 ml-1">{bookDetails?.tagVersionHId || '-'}</span>
+                        <span className="text-gray-800 ml-1">{bookDetails?.tagVersionHId}</span>
                     </div>
                     <div>
                         <span className="text-green-700 font-semibold">Tag Version E ID:</span> 
-                        <span className="text-gray-800 ml-1">{bookDetails?.tagVersionEId || '-'}</span>
+                        <span className="text-gray-800 ml-1">{bookDetails?.tagVersionEId}</span>
                     </div>
                 </div>
 
