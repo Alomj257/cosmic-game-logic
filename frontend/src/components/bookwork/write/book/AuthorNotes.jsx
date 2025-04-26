@@ -3,7 +3,7 @@ import {
     Edit, Trash2, PlusSquare, BookOpen, ArrowUp, ArrowDown, X, Check, Save
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import ReviewModal from './models/ReviewModal';
+import AuthoReviewModel from './models/AuthorReviewModel';
 import { getAllBooks, createBook } from '../../../../services/api';
 
 const AuthorNotes = () => {
@@ -15,7 +15,8 @@ const AuthorNotes = () => {
     const [savedNotes, setSavedNotes] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [manualRecordNumber, setManualRecordNumber] = useState('');
-    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
+
 
     useEffect(() => {
         const fetchBooks = async () => {
@@ -222,12 +223,11 @@ const AuthorNotes = () => {
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <button
                         className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
-                        onClick={() => setIsEditing(!isEditing)}
+                        onClick={() => setIsEditing(true)}
                     >
-                        {isEditing ? <X size={16} /> : <Edit size={16} />}
-                        {isEditing ? 'Cancel' : 'Edit'}
+                        <Edit size={16} />
+                        Edit
                     </button>
-
                     <button
                         className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
                         onClick={() => {
@@ -258,29 +258,22 @@ const AuthorNotes = () => {
                     </button>
 
                     <button
-                        onClick={() => setShowReviewModal(true)}
                         className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
+                        onClick={() => setIsReviewOpen(true)}
                     >
                         <BookOpen size={16} /> Review Book
                     </button>
+
                 </div>
             </div>
+            <AuthoReviewModel
+                isOpen={isReviewOpen}
+                onClose={() => setIsReviewOpen(false)}
+                recordNumber={manualRecordNumber}
+                bookDetails={selectedBook}
+                authorNotes={savedNotes}
+            />
 
-            {showReviewModal && (
-                <ReviewModal
-                    onClose={() => setShowReviewModal(false)}
-                    recordMode={manual}
-                    recordNumber={recordNumber}
-                    bookNumber={bookNumber}
-                    bookName={bookName}
-                    groupType={createGroupType}
-                    tagMainId={createSelectedMainId}
-                    tagVersionHId={createOpeningTag}
-                    tagVersionEId={createClosingTag}
-                    briefIntroduction={briefIntroduction}
-                    authorNotes={authorNotes}                   
-                />
-            )}
         </div>
     );
 };
