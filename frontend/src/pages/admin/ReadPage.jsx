@@ -33,8 +33,8 @@ const ReadPage = () => {
   return (
     <div className="flex h-screen">
       {/* Left Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto p-4 bg-gray-50 hide-scrollbar">
-        <h2 className="text-xl font-bold mb-4">📚 Books</h2>
+      <div className="w-1/3 border-r overflow-y-auto p-4 hide-scrollbar">
+        <h2 className="text-xl font-bold mb-4">Books</h2> {/* Emoji removed */}
         {books.length === 0 ? (
           <p>No books available with complete data.</p>
         ) : (
