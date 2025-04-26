@@ -6,6 +6,7 @@ import Navbar from "./components/common/Navbar";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import DatabasePage from "./pages/admin/DatabasePage";
+import ReadPage from "./pages/admin/ReadPage";
 
 const Login = lazy(() => import("./components/auth/Login"));
 const Register = lazy(() => import("./components/auth/Register"));
@@ -47,6 +48,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <DatabasePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/read"
+              element={
+                <ProtectedRoute>
+                  <ReadPage />
                 </ProtectedRoute>
               }
             />
