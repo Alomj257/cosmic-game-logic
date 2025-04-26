@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAllBooks, updateBook, deleteBook } from '../../../services/api';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { X } from 'lucide-react';
 
 const Book = () => {
   const [books, setBooks] = useState([]);
@@ -28,7 +29,26 @@ const Book = () => {
     setShowDeleteModal(false);
     fetchBooks();
   };
+  const handleAuthorNoteChange = (e, index) => {
+    const updatedNotes = [...editData.authorNotes];
+    updatedNotes[index].point = e.target.value;
+    setEditData({ ...editData, authorNotes: updatedNotes });
+  };
 
+  const handleAddAuthorNote = () => {
+    const newNote = { point: '' };
+    setEditData({
+      ...editData,
+      authorNotes: [...editData.authorNotes, newNote],
+    });
+  };
+
+  const handleRemoveAuthorNote = (index) => {
+    const updatedNotes = [...editData.authorNotes];
+    updatedNotes.splice(index, 1);
+    setEditData({ ...editData, authorNotes: updatedNotes });
+  };
+  
   const handleEditSave = async () => {
     const updatedData = {
       ...editData,
@@ -80,17 +100,17 @@ const Book = () => {
               <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
                 {Array.isArray(book.briefIntroduction)
                   ? book.briefIntroduction.slice(0, 3).map((p, index) => {
-                      const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
-                      return <p key={index}>{truncated}</p>;
-                    })
+                    const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
+                    return <p key={index}>{truncated}</p>;
+                  })
                   : '---'}
               </td>
               <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
                 {book.authorNotes && book.authorNotes.length > 0
                   ? book.authorNotes.slice(0, 3).map((note, index) => {
-                      const truncated = note.point.length > 30 ? note.point.slice(0, 30) + '...' : note.point;
-                      return <p key={index}>{truncated}</p>;
-                    })
+                    const truncated = note.point.length > 30 ? note.point.slice(0, 30) + '...' : note.point;
+                    return <p key={index}>{truncated}</p>;
+                  })
                   : '---'}
               </td>
               <td className="border border-green-700 text-center px-2 py-2 space-x-2 w-[100px]">
@@ -156,63 +176,253 @@ const Book = () => {
 
       {/* EDIT MODAL */}
       {showEditModal && editData && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
-          <div className="bg-white rounded-xl p-6 shadow-lg w-[90%] max-w-2xl">
-            <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">Edit Book</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <input type="text" name="recordNumber" value={editData.recordNumber} onChange={handleEditChange} placeholder="Record Number" className="border border-green-700 rounded px-4 py-2" />
-              <input type="text" name="bookNumber" value={editData.bookNumber} onChange={handleEditChange} placeholder="Book Number" className="border border-green-700 rounded px-4 py-2" />
-              <input type="text" name="groupType" value={editData.groupType} onChange={handleEditChange} placeholder="Group Type" className="border border-green-700 rounded px-4 py-2" />
-              <input type="text" name="tagMainVersionId" value={editData.tagMainVersionId} onChange={handleEditChange} placeholder="Tag Main Version ID" className="border border-green-700 rounded px-4 py-2" />
-              <input type="text" name="tagVersionHId" value={editData.tagVersionHId} onChange={handleEditChange} placeholder="Tag Version H ID" className="border border-green-700 rounded px-4 py-2" />
-              <input type="text" name="tagVersionEId" value={editData.tagVersionEId} onChange={handleEditChange} placeholder="Tag Version E ID" className="border border-green-700 rounded px-4 py-2" />
-              <input type="text" name="bookName" value={editData.bookName} onChange={handleEditChange} placeholder="Book Name" className="border border-green-700 rounded px-4 py-2 col-span-2" />
-              <textarea
-                name="briefIntroduction"
-                value={editData.briefIntroduction}
-                onChange={handleEditChange}
-                placeholder="Brief Introduction (one paragraph per line)"
-                className="border border-green-700 rounded px-4 py-2 col-span-2"
-                rows="4"
-              />
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg w-[95%] max-w-4xl p-8 overflow-y-auto h-[80vh] relative">
+
+            {/* Close Icon at the top-right (red X icon) */}
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-4 right-4 text-red-600 hover:text-red-800"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">Edit Book</h2>
+
+            {/* Book Details */}
+            <div className="space-y-4 text-sm">
+              {/* Side by side layout for the fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Record Number:</label>
+                  <input
+                    type="text"
+                    name="recordNumber"
+                    value={editData.recordNumber}
+                    onChange={handleEditChange}
+                    placeholder="Record Number"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Book Number:</label>
+                  <input
+                    type="text"
+                    name="bookNumber"
+                    value={editData.bookNumber}
+                    onChange={handleEditChange}
+                    placeholder="Book Number"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Group Type:</label>
+                  <input
+                    type="text"
+                    name="groupType"
+                    value={editData.groupType}
+                    onChange={handleEditChange}
+                    placeholder="Group Type"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Tag Main Version ID:</label>
+                  <input
+                    type="text"
+                    name="tagMainVersionId"
+                    value={editData.tagMainVersionId}
+                    onChange={handleEditChange}
+                    placeholder="Tag Main Version ID"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Tag Version H ID:</label>
+                  <input
+                    type="text"
+                    name="tagVersionHId"
+                    value={editData.tagVersionHId}
+                    onChange={handleEditChange}
+                    placeholder="Tag Version H ID"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Tag Version E ID:</label>
+                  <input
+                    type="text"
+                    name="tagVersionEId"
+                    value={editData.tagVersionEId}
+                    onChange={handleEditChange}
+                    placeholder="Tag Version E ID"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+              </div>
+
+              {/* Book Name (Larger label) */}
+              <div className="text-green-900">
+                <label className="font-semibold text-lg">Book Name:</label>
+                <input
+                  type="text"
+                  name="bookName"
+                  value={editData.bookName}
+                  onChange={handleEditChange}
+                  placeholder="Book Name"
+                  className="border border-green-700 rounded px-4 py-2 w-full"
+                />
+              </div>
+
+              {/* Brief Introduction (Larger label) */}
+              <div className="text-green-900">
+                <label className="font-semibold text-lg">Brief Introduction:</label>
+                <textarea
+                  name="briefIntroduction"
+                  value={editData.briefIntroduction}
+                  onChange={handleEditChange}
+                  placeholder="Brief Introduction (one paragraph per line)"
+                  className="border border-green-700 rounded px-4 py-2 w-full"
+                  rows="4"
+                />
+              </div>
+
+              {/* Editable Author Notes (Similar to Brief Introduction) */}
+              <div className="text-green-900">
+                <label className="font-semibold text-lg">Author Notes:</label>
+
+                {/* Displaying author notes as editable paragraphs */}
+                <div className="space-y-4">
+                  {editData.authorNotes && editData.authorNotes.length > 0 ? (
+                    editData.authorNotes.map((note, index) => (
+                      <div key={note._id} className="flex space-x-3 items-center">
+                        <textarea
+                          value={note.point}
+                          onChange={(e) => handleAuthorNoteChange(e, index)}
+                          className="w-full border-none rounded px-4 py-2 focus:outline-none focus:ring-1 focus:ring-green-600"
+                          rows="2"
+                          placeholder="Edit author note..."
+                        />
+                        <button
+                          onClick={() => handleRemoveAuthorNote(index)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No author notes available</p>
+                  )}
+                </div>
+
+                {/* Button to Add New Author Note */}
+                <div className="mt-4">
+                  <button
+                    onClick={handleAddAuthorNote}
+                    className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
+                  >
+                    Add Author Note
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {/* Actions */}
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
                 Cancel
               </button>
-              <button onClick={handleEditSave} className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">
+              <button
+                onClick={handleEditSave}
+                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
+              >
                 Save
               </button>
             </div>
           </div>
         </div>
       )}
-
+      
       {/* VIEW MODAL */}
       {viewData && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
-          <div className="bg-white border border-green-700 rounded-xl p-6 shadow-lg w-[95%] max-w-4xl max-h-[80vh] overflow-auto">
-            <h2 className="text-2xl font-bold text-green-700 mb-4 text-center underline">Book Details</h2>
-            <div className="text-green-900 whitespace-pre-wrap">
-              <p><strong>Record Number:</strong> {viewData.recordNumber}</p>
-              <p><strong>Book Number:</strong> {viewData.bookNumber}</p>
-              <p><strong>Group Type:</strong> {viewData.groupType}</p>
-              <p><strong>Tag Main Version ID:</strong> {viewData.tagMainVersionId}</p>
-              <p><strong>Tag Version H ID:</strong> {viewData.tagVersionHId}</p>
-              <p><strong>Tag Version E ID:</strong> {viewData.tagVersionEId}</p>
-              <p><strong>Book Name:</strong> {viewData.bookName}</p>
-              <p><strong>Brief Introduction:</strong></p>
-              <pre>{viewData.briefIntroduction.map(p => p.paragraph).join('\n')}</pre>
-              <p><strong>Author Notes:</strong></p>
-              <pre>{viewData.authorNotes ? viewData.authorNotes.map(note => note.point).join('\n') : 'No notes available'}</pre>
-            </div>
-            <div className="text-center mt-6">
-              <button
-                onClick={() => setViewData(null)}
-                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
-              >
-                Close
-              </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full p-8 overflow-y-auto max-h-[85vh] relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setViewData(null)}
+              className="absolute top-4 right-4 text-red-600 hover:text-red-800"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">Book Details</h2>
+
+            {/* Book Details */}
+            <div className="space-y-4 text-sm">
+              {/* Side by side layout for the general fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="text-green-900">
+                  <strong className="font-semibold">Record Number:</strong>
+                  <span className="text-black ml-2">{viewData.recordNumber || ''}</span>
+                </div>
+                <div className="text-green-900">
+                  <strong className="font-semibold">Book Number:</strong>
+                  <span className="text-black ml-2">{viewData.bookNumber || ''}</span>
+                </div>
+                <div className="text-green-900">
+                  <strong className="font-semibold">Group Type:</strong>
+                  <span className="text-black ml-2">{viewData.groupType || ''}</span>
+                </div>
+                <div className="text-green-900">
+                  <strong className="font-semibold">Tag Main Version ID:</strong>
+                  <span className="text-black ml-2">{viewData.tagMainVersionId || ''}</span>
+                </div>
+                <div className="text-green-900">
+                  <strong className="font-semibold">Tag Version H ID:</strong>
+                  <span className="text-black ml-2">{viewData.tagVersionHId || ''}</span>
+                </div>
+                <div className="text-green-900">
+                  <strong className="font-semibold">Tag Version E ID:</strong>
+                  <span className="text-black ml-2">{viewData.tagVersionEId || ''}</span>
+                </div>
+              </div>
+
+              {/* Book Name (Larger label) */}
+              <div>
+                <strong className="font-semibold text-lg text-green-900">Book Name:</strong>
+                <span className="text-black ml-2">{viewData.bookName || ''}</span>
+              </div>
+
+              {/* Brief Introduction (Larger label) */}
+              <div>
+                <strong className="font-semibold text-lg text-green-900">Brief Introduction:</strong>
+                <div
+                  className="mt-2 border p-3 rounded bg-gray-50"
+                  dangerouslySetInnerHTML={{
+                    __html: viewData.briefIntroduction.map(p => p.paragraph).join('<br/>')
+                  }}
+                />
+              </div>
+
+              {/* Author Notes (Larger label) */}
+              <div>
+                <strong className="font-semibold text-lg text-green-900">Author Notes:</strong>
+                <div className="mt-2 border p-3 rounded bg-gray-50">
+                  {viewData.authorNotes?.length > 0
+                    ? viewData.authorNotes.map((note, index) => (
+                      <p key={index} className="text-black">{note.point}</p>
+                    ))
+                    : <span className="text-black">No notes available</span>}
+                </div>
+              </div>
             </div>
           </div>
         </div>
