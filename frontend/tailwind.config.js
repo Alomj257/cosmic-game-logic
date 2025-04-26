@@ -18,6 +18,8 @@ module.exports = {
       colors: {
         'light-blue': '#3b82f6',
         'dark-pink': '#9b1c5c',
+        'brown-600': '#8B4513',
+        'brown-500': '#A0522D'
       },
     },
   },

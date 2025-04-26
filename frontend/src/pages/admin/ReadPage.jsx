@@ -32,19 +32,19 @@ const ReadPage = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       {/* Left Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto p-4 bg-gray-50">
+      <div className="w-1/3 border-r overflow-y-auto p-4 bg-gray-50" style={{ height: '100vh' }}>
         <h2 className="text-xl font-bold mb-4">📚 Books</h2>
         {books.length === 0 ? (
-          <p>No books available with complete data.</p> // Show message if no books found
+          <p>No books available with complete data.</p>
         ) : (
           <BookTree books={books} onSelect={handleSelect} />
         )}
       </div>
 
       {/* Right Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6" style={{ height: '100vh' }}>
         <ContentViewer content={selectedContent} />
       </div>
     </div>
