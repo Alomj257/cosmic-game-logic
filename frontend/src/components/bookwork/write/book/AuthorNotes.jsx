@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import AuthoReviewModel from './models/AuthorReviewModel';
-import { getAllBooks, createBook } from '../../../../services/api';
+import { getAllBooks, updateBook } from '../../../../services/api';
 
 const AuthorNotes = () => {
     const [books, setBooks] = useState([]);
@@ -17,16 +17,13 @@ const AuthorNotes = () => {
     const [manualRecordNumber, setManualRecordNumber] = useState('');
     const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-
     useEffect(() => {
         const fetchBooks = async () => {
             try {
                 const response = await getAllBooks();
                 const allBooks = response.data || [];
-
                 const booksWithIntro = allBooks.filter(b => Array.isArray(b.briefIntroduction) && b.briefIntroduction.length > 0);
                 const uniqueBookNumbers = [...new Set(booksWithIntro.map(b => b.bookNumber))];
-
                 setBooks(booksWithIntro);
                 setBookNumbers(uniqueBookNumbers);
             } catch (error) {
@@ -41,41 +38,45 @@ const AuthorNotes = () => {
         setSelectedBookNumber(selectedNumber);
         const matchedBook = books.find(b => b.bookNumber === selectedNumber);
         setSelectedBook(matchedBook || null);
+        setManualRecordNumber(matchedBook?.recordNumber || '');
+        setSavedNotes(matchedBook?.authorNotes?.map(n => n.point) || []);
     };
 
     const handleSaveNotes = async () => {
         const lines = savedNotes.map(point => ({ point }));
-
+    
         if (!selectedBook) {
-            console.error("Book not selected");
+            toast.error("Please select a book first.");
             return;
         }
-
+    
         if (!manualRecordNumber) {
-            console.error("Record Number is required");
+            toast.error("Record Number is required.");
             return;
         }
-
+    
         try {
             const payload = {
+                ...selectedBook,
                 recordNumber: manualRecordNumber.trim(),
-                bookNumber: selectedBook.bookNumber,
-                groupType: selectedBook.groupType,
-                tagMainVersionId: selectedBook.tagMainVersionId,
-                tagVersionHId: selectedBook.tagVersionHId,
-                tagVersionEId: selectedBook.tagVersionEId,
-                bookName: selectedBook.bookName,
-                briefIntroduction: selectedBook.briefIntroduction || [],
-                authorNotes: lines
+                authorNotes: lines,
             };
-
-            await createBook(payload);
-            toast.success("Saved notes successfully:", payload);
+    
+            await updateBook(selectedBook._id, payload);
+            toast.success("Updated notes successfully!");
+    
+            // 🔄 Reset form
+            setNotesInput('');
+            setSavedNotes([]);
+            setManualRecordNumber('');
+            setSelectedBookNumber('');
+            setSelectedBook(null);
+            setIsEditing(false);
         } catch (error) {
-            console.error("Error saving notes:", error.response?.data || error.message);
-            toast.error("Error saving notes to the database");
+            console.error("Error updating book:", error.response?.data || error.message);
+            toast.error("Failed to update book.");
         }
-    };
+    };    
 
     const handleNextPoint = () => {
         const trimmedNote = notesInput.trim();
@@ -114,9 +115,7 @@ const AuthorNotes = () => {
             <div className="bg-green-100 border border-green-700 rounded-lg p-6 w-full max-w-6xl">
                 <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">AUTHOR'S NOTE PAD</h2>
                 <div className="mb-6 flex flex-col md:flex-row gap-6">
-                    {/* Left Half - Record Number Input and Book Number Dropdown */}
                     <div className="flex md:w-1/2 gap-6">
-                        {/* Manual Record Number */}
                         <div className="flex-1">
                             <label className="block font-bold text-green-900 mb-2">Record Number</label>
                             <input
@@ -127,8 +126,6 @@ const AuthorNotes = () => {
                                 placeholder="e.g., 4.00"
                             />
                         </div>
-
-                        {/* Book Number Dropdown */}
                         <div className="flex-1">
                             <label className="block font-bold text-green-900 mb-2">Book Number</label>
                             <select
@@ -144,7 +141,6 @@ const AuthorNotes = () => {
                         </div>
                     </div>
 
-                    {/* Right Half - Book Name Display */}
                     {selectedBook && (
                         <div className="flex-1 md:w-1/2">
                             <label className="block font-bold text-green-900 mb-2">Book Name</label>
@@ -156,7 +152,6 @@ const AuthorNotes = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {/* Notes Input */}
                     <div>
                         <label className="block text-base font-bold text-green-900 mb-2">Write your notes</label>
                         <textarea
@@ -168,7 +163,6 @@ const AuthorNotes = () => {
                         />
                     </div>
 
-                    {/* Notes Preview */}
                     <div>
                         <label className="block text-base font-bold text-green-900 mb-2">Points Preview</label>
                         <div className="border border-green-600 rounded p-4 h-[240px] overflow-y-auto bg-white">
@@ -219,7 +213,6 @@ const AuthorNotes = () => {
                     </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <button
                         className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
@@ -235,7 +228,6 @@ const AuthorNotes = () => {
                             setSavedNotes([]);
                             setIsEditing(false);
                             setManualRecordNumber('');
-                            setNotesInput('');
                             setSelectedBookNumber('');
                             setSelectedBook(null);
                         }}
@@ -263,9 +255,9 @@ const AuthorNotes = () => {
                     >
                         <BookOpen size={16} /> Review Book
                     </button>
-
                 </div>
             </div>
+
             <AuthoReviewModel
                 isOpen={isReviewOpen}
                 onClose={() => setIsReviewOpen(false)}
@@ -273,7 +265,6 @@ const AuthorNotes = () => {
                 bookDetails={selectedBook}
                 authorNotes={savedNotes}
             />
-
         </div>
     );
 };

@@ -208,7 +208,7 @@ const BriefIntroduction = () => {
                 };
 
                 await updateBook(bookToUpdate._id, payload);
-                toast.success('Existing book updated successfully!');
+                toast.success('Brief Introduction updated successfully!');
             } else {
                 // Step 3: If no duplicates or only one, create a new book
                 const newRecordNumber = parseFloat(recordNumber).toFixed(2);
@@ -228,6 +228,8 @@ const BriefIntroduction = () => {
                 toast.success('Brief Introduction saved successfully!');
             }
 
+            const booksRes = await getAllBooks();
+            setBooksList(booksRes.data);
             resetForm();
         } catch (err) {
             console.error('Error saving or updating brief introduction:', err);
