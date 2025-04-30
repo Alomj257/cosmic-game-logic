@@ -48,7 +48,7 @@ const Book = () => {
     updatedNotes.splice(index, 1);
     setEditData({ ...editData, authorNotes: updatedNotes });
   };
-  
+
   const handleEditSave = async () => {
     const updatedData = {
       ...editData,
@@ -68,7 +68,7 @@ const Book = () => {
   };
 
   return (
-    <div className="mt-10 border border-green-700 rounded-2xl bg-green-100 p-6 shadow-md overflow-x-auto">
+    <div className="m-10 border border-green-700 rounded-2xl bg-green-100 p-6 shadow-md overflow-x-auto">
       <h2 className="text-3xl font-bold text-center text-green-700 underline mb-6">
         BOOK DATABASE
       </h2>
@@ -98,7 +98,7 @@ const Book = () => {
               <td className="border border-green-700 text-center px-2 py-2">{book.tagVersionEId || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2 w-[180px]">{book.bookName || '---'}</td>
               <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
-                {Array.isArray(book.briefIntroduction)
+                {Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0
                   ? book.briefIntroduction.slice(0, 3).map((p, index) => {
                     const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
                     return <p key={index}>{truncated}</p>;
@@ -350,7 +350,7 @@ const Book = () => {
           </div>
         </div>
       )}
-      
+
       {/* VIEW MODAL */}
       {viewData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

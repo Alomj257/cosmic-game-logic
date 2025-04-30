@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './Book.css';
 import { Edit, Save, Trash2, BookOpen, Info, PlusSquare, ArrowUp, ArrowDown, Check } from 'lucide-react';
-import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook } from '../../../../services/api';
+import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook, updateBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
 import { toast } from 'react-hot-toast';
 import ReviewModal from './models/ReviewModal';
@@ -105,19 +105,46 @@ const BriefIntroduction = () => {
     }, [selectedTagMainId]);
 
     useEffect(() => {
-        const selectedBook = booksList.find(b => b.bookNumber === bookNumber);
-        setBookName(selectedBook?.bookName || '');
-        setBookNameHTML(selectedBook?.bookName || '');
+        const matchingBooks = booksList.filter(b => b.bookNumber === bookNumber);
+        if (matchingBooks.length === 0) {
+            console.log('No books found with this book number.');
+            setBookName('');
+            setIntroParagraphs([]);
+            setBookNameHTML('');
+            return;
+        }
+    
+        const selectedBook = matchingBooks.reduce((a, b) =>
+            parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
+        );
+    
+        console.log('Selected Book:', selectedBook);
+    
+        const bookName = selectedBook.bookName || '';
+        setBookName(bookName);
+    
+        const paragraphs = Array.isArray(selectedBook.briefIntroduction)
+            ? selectedBook.briefIntroduction.map(p => p.paragraph)
+            : [];
+    
+        console.log('Loaded Paragraphs:', paragraphs);
+    
+        setIntroParagraphs(paragraphs);
+        updateBookNameHTML(bookName, paragraphs);
     }, [bookNumber, booksList]);
+    
+    
 
-    const updateBookNameHTML = (paragraphs) => {
-        // Wrap book name in a div with the class 'book-name'
+    const updateBookNameHTML = (bookName, paragraphs = []) => {
+        const safeParagraphs = Array.isArray(paragraphs) ? paragraphs : [];
         const formatted = `
             <div class="book-name">${bookName}</div>
-            <div class="paragraphs">${paragraphs.join('<br/>')}</div>
+            <div class="paragraphs">${safeParagraphs.join('<br/>')}</div>
         `;
         setBookNameHTML(formatted);
     };
+    
+    
 
 
     const handleNextParagraph = () => {
@@ -125,9 +152,12 @@ const BriefIntroduction = () => {
         const wrapped = editingText;
         const newParagraphs = [...introParagraphs, wrapped];
         setIntroParagraphs(newParagraphs);
-        updateBookNameHTML(newParagraphs);
+    
+        // Pass bookName along with paragraphs
+        updateBookNameHTML(bookName, newParagraphs);
+    
         setEditingText('');
-    };
+    };    
 
     const handleEditParagraph = (index) => {
         setEditingIndex(index);
@@ -139,10 +169,14 @@ const BriefIntroduction = () => {
         const updatedParagraphs = [...introParagraphs];
         updatedParagraphs[editingIndex] = editingText;
         setIntroParagraphs(updatedParagraphs);
-        updateBookNameHTML(updatedParagraphs);
+    
+        // Pass both bookName and updatedParagraphs
+        updateBookNameHTML(bookName, updatedParagraphs);
+    
         setEditingIndex(null);
         setEditingText('');
     };
+    
 
     const moveParagraph = (index, direction) => {
         const newIndex = index + direction;
@@ -155,25 +189,54 @@ const BriefIntroduction = () => {
 
     const handleSave = async () => {
         try {
-            const payload = {
-                auto: false,
-                recordNumber: parseFloat(recordNumber).toFixed(2),
-                bookNumber,
-                bookName,
-                groupType: selectedGroupType,
-                tagMainVersionId: selectedTagMainId,
-                tagVersionHId: openingTag,
-                tagVersionEId: closingTag,
-                briefIntroduction: introParagraphs.map(p => ({ paragraph: p }))
-            };
-            await createBook(payload);
-            toast.success('Brief Introduction saved successfully!');
+            // Step 1: Find all books with the same bookNumber
+            const matchingBooks = booksList.filter(b => b.bookNumber === bookNumber);
+    
+            // Step 2: If multiple exist, choose the one with the highest recordNumber
+            if (matchingBooks.length > 1) {
+                const bookToUpdate = matchingBooks.reduce((a, b) =>
+                    parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
+                );
+    
+                const payload = {
+                    recordNumber: bookToUpdate.recordNumber,
+                    bookNumber,
+                    bookName,
+                    groupType: selectedGroupType,
+                    tagMainVersionId: selectedTagMainId,
+                    tagVersionHId: openingTag,
+                    tagVersionEId: closingTag,
+                    briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
+                };
+    
+                await updateBook(bookToUpdate._id, payload);
+                toast.success('Existing book updated successfully!');
+            } else {
+                // Step 3: If no duplicates or only one, create a new book
+                const newRecordNumber = parseFloat(recordNumber).toFixed(2);
+                const payload = {
+                    auto: false,
+                    recordNumber: newRecordNumber,
+                    bookNumber,
+                    bookName,
+                    groupType: selectedGroupType,
+                    tagMainVersionId: selectedTagMainId,
+                    tagVersionHId: openingTag,
+                    tagVersionEId: closingTag,
+                    briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
+                };
+    
+                await createBook(payload);
+                toast.success('Brief Introduction saved successfully!');
+            }
+    
             resetForm();
         } catch (err) {
-            console.error('Error saving brief introduction:', err);
-            toast.error('Failed to save brief introduction.');
+            console.error('Error saving or updating brief introduction:', err);
+            toast.error('Failed to save or update brief introduction.');
         }
     };
+    
 
     const resetForm = () => {
         setRecordNumber('');
