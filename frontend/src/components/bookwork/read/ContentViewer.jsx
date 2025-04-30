@@ -24,6 +24,7 @@ const ContentViewer = ({ content }) => {
                     {/* Centered Book Name */}
                     <h1 className="text-3xl font-bold mb-4 text-center p-2">
                         {content.bookName || content.chapterName || content.headingName || content.subHeadingName || content.subSubHeadingName}
+                        <p style={{color: 'red', fontSize: '20px'}}><u>Major content of this book</u></p>
                     </h1>
 
                     {/* Main Content */}

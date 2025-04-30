@@ -183,6 +183,8 @@ const BriefIntroduction = () => {
         [newParagraphs[index], newParagraphs[newIndex]] = [newParagraphs[newIndex], newParagraphs[index]];
         setIntroParagraphs(newParagraphs);
         updateBookNameHTML(newParagraphs);
+        // Pass bookName along with paragraphs
+        updateBookNameHTML(bookName, newParagraphs);
     };
 
     const handleSave = async () => {
@@ -353,16 +355,6 @@ const BriefIntroduction = () => {
                     </div>
                 </div>
 
-                {/* Book Name Display */}
-                <div className="mb-6 text-center">
-                    <label className="font-bold text-left text-xl text-green-900 block mb-2">Book Name</label>
-                    <div
-                        className="border border-green-600 rounded bg-white p-4 text-center text-base min-h-[100px]"
-                        dangerouslySetInnerHTML={{ __html: bookNameHTML }}
-                    />
-                </div>
-
-
                 {/* Paragraph Input Section */}
                 <div className="mb-6">
                     <label className="font-bold text-left text-xl text-green-900 block mb-2">Write your Introduction</label>
@@ -374,6 +366,15 @@ const BriefIntroduction = () => {
                         className="rounded"
                     />
                 </div>
+
+                {/* Book Name Display */}
+                {/* <div className="mb-6 text-center">
+                    <label className="font-bold text-left text-xl text-green-900 block mb-2">Book Name</label>
+                    <div
+                        className="border border-green-600 rounded bg-white p-4 text-center text-base min-h-[100px]"
+                        dangerouslySetInnerHTML={{ __html: bookNameHTML }}
+                    />
+                </div> */}
 
                 {/* Editable Paragraphs List */}
                 {introParagraphs.length > 0 && (
