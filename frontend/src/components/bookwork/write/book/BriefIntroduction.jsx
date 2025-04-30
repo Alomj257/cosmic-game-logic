@@ -46,7 +46,7 @@ const BriefIntroduction = () => {
             [{ 'align': [] }],
             ['blockquote', 'code-block'],
             [{ 'color': [] }, { 'background': [] }],
-            ['image'] // Optional: Image upload button
+            ['image']
         ]
     };
 
@@ -107,60 +107,56 @@ const BriefIntroduction = () => {
     useEffect(() => {
         const matchingBooks = booksList.filter(b => b.bookNumber === bookNumber);
         if (matchingBooks.length === 0) {
-            console.log('No books found with this book number.');
             setBookName('');
             setIntroParagraphs([]);
             setBookNameHTML('');
             setRecordNumber('');  // Reset record number if no books are found
             return;
         }
-    
+
         const selectedBook = matchingBooks.reduce((a, b) =>
             parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
         );
-    
-        console.log('Selected Book:', selectedBook);
-    
+
         const bookName = selectedBook.bookName || '';
         setBookName(bookName);
-    
+
         // Check if briefIntroduction exists, then auto-fill record number, otherwise leave it for manual input
         if (selectedBook.briefIntroduction && selectedBook.briefIntroduction.length > 0) {
             setRecordNumber(selectedBook.recordNumber || '');  // Auto-fill record number
         } else {
             setRecordNumber('');  // Allow manual input
         }
-    
+
         const paragraphs = Array.isArray(selectedBook.briefIntroduction)
             ? selectedBook.briefIntroduction.map(p => p.paragraph)
             : [];
-    
-        console.log('Loaded Paragraphs:', paragraphs);
-    
+
         setIntroParagraphs(paragraphs);
         updateBookNameHTML(bookName, paragraphs);
-    }, [bookNumber, booksList]);    
-    
+    }, [bookNumber, booksList]);
+
     const updateBookNameHTML = (bookName, paragraphs = []) => {
         const safeParagraphs = Array.isArray(paragraphs) ? paragraphs : [];
         const formatted = `
-            <div class="book-name">${bookName}</div>
+            <div ><div class="book-name">${bookName}</div> 
+            <p><strong style="color: rgb(230, 0, 0);"><u>Major content of this book</u></strong></p>
             <div class="paragraphs">${safeParagraphs.join('<br/>')}</div>
         `;
         setBookNameHTML(formatted);
     };
-    
+
     const handleNextParagraph = () => {
         if (!editingText.trim()) return;
         const wrapped = editingText;
         const newParagraphs = [...introParagraphs, wrapped];
         setIntroParagraphs(newParagraphs);
-    
+
         // Pass bookName along with paragraphs
         updateBookNameHTML(bookName, newParagraphs);
-    
+
         setEditingText('');
-    };    
+    };
 
     const handleEditParagraph = (index) => {
         setEditingIndex(index);
@@ -172,10 +168,10 @@ const BriefIntroduction = () => {
         const updatedParagraphs = [...introParagraphs];
         updatedParagraphs[editingIndex] = editingText;
         setIntroParagraphs(updatedParagraphs);
-    
+
         // Pass both bookName and updatedParagraphs
         updateBookNameHTML(bookName, updatedParagraphs);
-    
+
         setEditingIndex(null);
         setEditingText('');
     };
@@ -193,13 +189,13 @@ const BriefIntroduction = () => {
         try {
             // Step 1: Find all books with the same bookNumber
             const matchingBooks = booksList.filter(b => b.bookNumber === bookNumber);
-    
+
             // Step 2: If multiple exist, choose the one with the highest recordNumber
             if (matchingBooks.length > 1) {
                 const bookToUpdate = matchingBooks.reduce((a, b) =>
                     parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
                 );
-    
+
                 const payload = {
                     recordNumber: bookToUpdate.recordNumber,
                     bookNumber,
@@ -210,7 +206,7 @@ const BriefIntroduction = () => {
                     tagVersionEId: bookToUpdate.closingTag,
                     briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
                 };
-    
+
                 await updateBook(bookToUpdate._id, payload);
                 toast.success('Existing book updated successfully!');
             } else {
@@ -227,11 +223,11 @@ const BriefIntroduction = () => {
                     tagVersionEId: closingTag,
                     briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
                 };
-    
+
                 await createBook(payload);
                 toast.success('Brief Introduction saved successfully!');
             }
-    
+
             resetForm();
         } catch (err) {
             console.error('Error saving or updating brief introduction:', err);
@@ -373,6 +369,7 @@ const BriefIntroduction = () => {
                         onChange={setEditingText}
                         modules={modules}
                         placeholder="Write your Introduction here..."
+                        className="rounded"
                     />
                 </div>
 
