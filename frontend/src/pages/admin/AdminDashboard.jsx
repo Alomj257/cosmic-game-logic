@@ -2,7 +2,7 @@ import React from 'react'
 
 const AdminDashboard = () => {
   return (
-    <div>AdminDashboard</div>
+    <div className="flex flex-col h-[90vh]">AdminDashboard</div>
   )
 }
 

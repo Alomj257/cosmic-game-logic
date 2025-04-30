@@ -24,7 +24,6 @@ const App = () => {
       <AuthProvider> {/* AuthProvider is now inside Router */}
         <Toaster />
         <Navbar />
-        <div>
           <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<Login />} />
@@ -63,7 +62,6 @@ const App = () => {
 
           </Routes>
         </Suspense>
-        </div>
       </AuthProvider>
     </Router>
   );
