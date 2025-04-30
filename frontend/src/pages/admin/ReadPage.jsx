@@ -13,8 +13,7 @@ const ReadPage = () => {
         const response = await getAllBooks();
         const filteredBooks = response.data.filter(book => 
           book.bookName && 
-          Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0 && 
-          Array.isArray(book.authorNotes) && book.authorNotes.length > 0
+          Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0
         );
         setBooks(filteredBooks);
       } catch (error) {
