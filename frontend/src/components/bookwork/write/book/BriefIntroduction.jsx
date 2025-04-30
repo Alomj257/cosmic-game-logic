@@ -111,6 +111,7 @@ const BriefIntroduction = () => {
             setBookName('');
             setIntroParagraphs([]);
             setBookNameHTML('');
+            setRecordNumber('');  // Reset record number if no books are found
             return;
         }
     
@@ -123,6 +124,13 @@ const BriefIntroduction = () => {
         const bookName = selectedBook.bookName || '';
         setBookName(bookName);
     
+        // Check if briefIntroduction exists, then auto-fill record number, otherwise leave it for manual input
+        if (selectedBook.briefIntroduction && selectedBook.briefIntroduction.length > 0) {
+            setRecordNumber(selectedBook.recordNumber || '');  // Auto-fill record number
+        } else {
+            setRecordNumber('');  // Allow manual input
+        }
+    
         const paragraphs = Array.isArray(selectedBook.briefIntroduction)
             ? selectedBook.briefIntroduction.map(p => p.paragraph)
             : [];
@@ -131,10 +139,8 @@ const BriefIntroduction = () => {
     
         setIntroParagraphs(paragraphs);
         updateBookNameHTML(bookName, paragraphs);
-    }, [bookNumber, booksList]);
+    }, [bookNumber, booksList]);    
     
-    
-
     const updateBookNameHTML = (bookName, paragraphs = []) => {
         const safeParagraphs = Array.isArray(paragraphs) ? paragraphs : [];
         const formatted = `
@@ -144,9 +150,6 @@ const BriefIntroduction = () => {
         setBookNameHTML(formatted);
     };
     
-    
-
-
     const handleNextParagraph = () => {
         if (!editingText.trim()) return;
         const wrapped = editingText;
@@ -176,7 +179,6 @@ const BriefIntroduction = () => {
         setEditingIndex(null);
         setEditingText('');
     };
-    
 
     const moveParagraph = (index, direction) => {
         const newIndex = index + direction;
@@ -202,10 +204,10 @@ const BriefIntroduction = () => {
                     recordNumber: bookToUpdate.recordNumber,
                     bookNumber,
                     bookName,
-                    groupType: selectedGroupType,
-                    tagMainVersionId: selectedTagMainId,
-                    tagVersionHId: openingTag,
-                    tagVersionEId: closingTag,
+                    groupType: bookToUpdate.selectedGroupType,
+                    tagMainVersionId: bookToUpdate.selectedTagMainId,
+                    tagVersionHId: bookToUpdate.openingTag,
+                    tagVersionEId: bookToUpdate.closingTag,
                     briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
                 };
     
@@ -236,7 +238,6 @@ const BriefIntroduction = () => {
             toast.error('Failed to save or update brief introduction.');
         }
     };
-    
 
     const resetForm = () => {
         setRecordNumber('');
