@@ -11,19 +11,36 @@ const ReadPage = () => {
     const fetchBooks = async () => {
       try {
         const response = await getAllBooks();
-        const filteredBooks = response.data.filter(book => 
-          book.bookName && 
-          Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0
-        );
-        setBooks(filteredBooks);
+        const booksData = response.data;
+  
+        // Group books by bookNumber
+        const bookMap = new Map();
+  
+        booksData.forEach((book) => {
+          if (!book.bookNumber) return;
+  
+          const existing = bookMap.get(book.bookNumber);
+  
+          // Prefer book with briefIntroduction if duplicate
+          if (
+            !existing ||
+            (Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0)
+          ) {
+            bookMap.set(book.bookNumber, book);
+          }
+        });
+  
+        const uniqueBooks = Array.from(bookMap.values());
+        setBooks(uniqueBooks);
       } catch (error) {
         console.error('Error fetching books:', error);
         setBooks([]);
       }
     };
-
+  
     fetchBooks();
   }, []);
+  
 
   const handleSelect = (item) => {
     setSelectedContent(item);
