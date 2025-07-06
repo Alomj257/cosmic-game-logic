@@ -10,6 +10,7 @@ const Book = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [viewData, setViewData] = useState(null);
+  const [briefIntroViewData, setBriefIntroViewData] = useState(null);
 
   useEffect(() => {
     fetchBooks();
@@ -18,7 +19,18 @@ const Book = () => {
   const fetchBooks = async () => {
     try {
       const res = await getAllBooks();
-      setBooks(Array.isArray(res.data) ? res.data : res.data.books || []);
+      let bookList = Array.isArray(res.data) ? res.data : res.data.books || [];
+
+      // Sort by Book Number (assuming they are numeric or can be parsed as numbers)
+      bookList.sort((a, b) => {
+        const numA = parseFloat(a.bookNumber);
+        const numB = parseFloat(b.bookNumber);
+        return isNaN(numA) || isNaN(numB)
+          ? String(a.bookNumber).localeCompare(String(b.bookNumber))
+          : numA - numB;
+      });
+
+      setBooks(bookList);
     } catch (err) {
       console.error('❌ Failed to fetch books:', err);
     }
@@ -97,10 +109,10 @@ const Book = () => {
               <td className="border border-green-700 text-center px-2 py-2 w-[180px]">{(book.tagVersionHId || '').slice(0, 50)}</td>
               <td className="border border-green-700 text-center px-2 py-2">{book.tagVersionEId || '---'}</td>
               <td className="border border-green-700 text-center px-2 py-2 w-[180px]">{book.bookName || '---'}</td>
-              <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
+              {/* <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
                 {Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0
                   ? book.briefIntroduction.slice(0, 3).map((p, index) => {
-                    const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + '...' : p.paragraph;
+                    const truncated = p.paragraph.length > 30 ? p.paragraph.slice(0, 30) + 'more' : p.paragraph;
                     return <p key={index}>{truncated}</p>;
                   })
                   : '---'}
@@ -108,17 +120,52 @@ const Book = () => {
               <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
                 {book.authorNotes && book.authorNotes.length > 0
                   ? book.authorNotes.slice(0, 3).map((note, index) => {
-                    const truncated = note.point.length > 30 ? note.point.slice(0, 30) + '...' : note.point;
+                    const truncated = note.point.length > 30 ? note.point.slice(0, 30) + 'more' : note.point;
                     return <p key={index}>{truncated}</p>;
                   })
                   : '---'}
+              </td> */}
+              <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
+                {Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0
+                  ? book.briefIntroduction.slice(0, 3).map((p, index) => {
+                    const isTruncated = p.paragraph.length > 30;
+                    const truncated = p.paragraph.slice(0, 30);
+                    return (
+                      <p key={index}>
+                        {truncated}
+                        {isTruncated && <span className="text-red-600 font-bold">...more</span>}
+                      </p>
+                    );
+                  })
+                  : '---'}
               </td>
+
+              <td className="border border-green-700 text-left px-2 py-2 w-[180px]">
+                {book.authorNotes && book.authorNotes.length > 0
+                  ? book.authorNotes.slice(0, 3).map((note, index) => {
+                    const isTruncated = note.point.length > 30;
+                    const truncated = note.point.slice(0, 30);
+                    return (
+                      <p key={index}>
+                        {truncated}
+                        {isTruncated && <span className="text-red-600 font-bold">...more</span>}
+                      </p>
+                    );
+                  })
+                  : '---'}
+              </td>
+
               <td className="border border-green-700 text-center px-2 py-2 space-x-2 w-[100px]">
+                <EyeOutlined
+                  className="text-purple-700 cursor-pointer"
+                  onClick={() => setBriefIntroViewData(book)}
+                  title="View Brief Intro Tag Info"
+                />
                 <EyeOutlined
                   className="text-green-700 cursor-pointer"
                   onClick={() => setViewData(book)}
                 />
-                <EditOutlined
+                {/* <EditOutlined
                   className="text-blue-600 cursor-pointer"
                   onClick={() => {
                     setEditData({
@@ -129,7 +176,7 @@ const Book = () => {
                     });
                     setShowEditModal(true);
                   }}
-                />
+                /> */}
                 <DeleteOutlined
                   className="text-red-600 cursor-pointer"
                   onClick={() => {
@@ -274,6 +321,56 @@ const Book = () => {
                   placeholder="Book Name"
                   className="border border-green-700 rounded px-4 py-2 w-full"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Brief Intro Group Type:</label>
+                  <input
+                    type="text"
+                    name="briefIntroGroupType"
+                    value={editData.briefIntroGroupType || ''}
+                    onChange={handleEditChange}
+                    placeholder="Brief Intro Group Type"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Brief Intro Main Version ID:</label>
+                  <input
+                    type="text"
+                    name="briefIntroMainVersionId"
+                    value={editData.briefIntroMainVersionId || ''}
+                    onChange={handleEditChange}
+                    placeholder="Brief Intro Main Version ID"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                  />
+                </div>
+
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Brief Intro Version H ID:</label>
+                  <textarea
+                    name="briefIntroVersionHId"
+                    value={editData.briefIntroVersionHId || ''}
+                    onChange={handleEditChange}
+                    placeholder="Brief Intro Version H ID"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="text-green-900">
+                  <label className="font-semibold text-green-900">Brief Intro Version E ID:</label>
+                  <textarea
+                    name="briefIntroVersionEId"
+                    value={editData.briefIntroVersionEId || ''}
+                    onChange={handleEditChange}
+                    placeholder="Brief Intro Version E ID"
+                    className="border border-green-700 rounded px-4 py-2 w-full"
+                    rows={3}
+                  />
+                </div>
               </div>
 
               {/* Brief Introduction (Larger label) */}
@@ -421,6 +518,47 @@ const Book = () => {
                       <p key={index} className="text-black">{note.point}</p>
                     ))
                     : <span className="text-black">No notes available</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {briefIntroViewData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setBriefIntroViewData(null)}
+              className="absolute top-4 right-4 text-red-600 hover:text-red-800"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-xl font-bold text-center text-purple-700 underline mb-6">
+              Brief Intro Tag Details
+            </h2>
+
+            <div className="space-y-4 text-sm">
+              <div className="text-purple-900">
+                <strong className="font-semibold">Group Type:</strong>
+                <span className="ml-2 text-black">{briefIntroViewData.briefIntroGroupType || '---'}</span>
+              </div>
+              <div className="text-purple-900">
+                <strong className="font-semibold">Main Version ID:</strong>
+                <span className="ml-2 text-black">{briefIntroViewData.briefIntroMainVersionId || '---'}</span>
+              </div>
+              <div className="text-purple-900">
+                <strong className="font-semibold">Version H ID:</strong>
+                <div className="mt-2 border p-3 bg-gray-50 rounded">
+                  <pre className="text-xs overflow-x-auto">{briefIntroViewData.briefIntroVersionHId || '---'}</pre>
+                </div>
+              </div>
+              <div className="text-purple-900">
+                <strong className="font-semibold">Version E ID:</strong>
+                <div className="mt-2 border p-3 bg-gray-50 rounded">
+                  <pre className="text-xs overflow-x-auto">{briefIntroViewData.briefIntroVersionEId || '---'}</pre>
                 </div>
               </div>
             </div>
