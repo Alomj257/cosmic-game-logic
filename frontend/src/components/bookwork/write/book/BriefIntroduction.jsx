@@ -269,10 +269,10 @@ const BriefIntroduction = () => {
                     recordNumber={recordNumber}
                     bookName={bookName}
                     bookNumber={bookNumber}
-                    briefIntroGroupType={briefIntroGroupType}
-                    briefIntroMainVersionId={briefIntroMainVersionId}
-                    briefIntroVersionHId={briefIntroVersionHId}
-                    briefIntroVersionEId={briefIntroVersionEId}
+                    groupType={briefIntroMainVersionId}
+                    tagMainId={briefIntroVersionHId}
+                    tagVersionHId={briefIntroVersionEId}
+                    tagVersionEId={introParagraphs}
                     briefIntroduction={introParagraphs}
                 />
             )}

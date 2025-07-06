@@ -33,34 +33,24 @@ const CreateNewBook = () => {
 
 
     useEffect(() => {
-    const fetchAutoRecordNumber = async () => {
-        if (recordMode === 'auto') {
-            try {
-                const books = await getAllBooks();
-                const existingNumbers = books.data
-                    .map(book => parseFloat(book.recordNumber))
-                    .filter(n => !isNaN(n));
-
-                let newNumber;
-
-                if (existingNumbers.length === 0) {
-                    newNumber = "1.00";
-                } else {
-                    const maxNumber = Math.max(...existingNumbers);
-                    newNumber = (maxNumber + 2).toFixed(2);
+        const fetchAutoRecordNumber = async () => {
+            if (recordMode === 'auto') {
+                try {
+                    const books = await getAllBooks();
+                    const existingNumbers = books.data
+                        .map(book => parseFloat(book.recordNumber))
+                        .filter(n => !isNaN(n));
+                    const maxNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0;
+                    const newNumber = (maxNumber + 2).toFixed(2);
+                    setAutoRecordNumber(newNumber);
+                } catch (error) {
+                    console.error('Error fetching record numbers:', error);
                 }
-
-                setAutoRecordNumber(newNumber);
-            } catch (error) {
-                console.error('Error fetching record numbers:', error);
-                setAutoRecordNumber("1.00"); // fallback on error
             }
-        }
-    };
+        };
 
-    fetchAutoRecordNumber();
-}, [recordMode]);
-
+        fetchAutoRecordNumber();
+    }, [recordMode]);
 
     useEffect(() => {
         const fetchTags = async () => {
