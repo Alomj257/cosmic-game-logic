@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './Book.css';
 import { Edit, Save, Trash2, BookOpen, Info, PlusSquare, ArrowUp, ArrowDown, Check } from 'lucide-react';
-import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, createBook, updateBook } from '../../../../services/api';
+import { getAllTags, getTagMainIdsByDataType, getTagDetailsByTagMainId, getAllBooks, updateBook } from '../../../../services/api';
 import HoverPopup from '../HoverPopup';
 import { toast } from 'react-hot-toast';
 import ReviewModal from './models/ReviewModal';
@@ -14,26 +14,25 @@ const BriefIntroduction = () => {
     const [bookNumber, setBookNumber] = useState('');
     const [bookName, setBookName] = useState('');
     const [bookNameHTML, setBookNameHTML] = useState('');
-    const [introText, setIntroText] = useState('');
+    const [introParagraphs, setIntroParagraphs] = useState([]);
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [editingText, setEditingText] = useState('');
+    const [isRecordNumberReadOnly, setIsRecordNumberReadOnly] = useState(false);
 
     const [groupTypes, setGroupTypes] = useState([]);
-    const [selectedGroupType, setSelectedGroupType] = useState('');
     const [tagMainIds, setTagMainIds] = useState([]);
-    const [selectedTagMainId, setSelectedTagMainId] = useState('');
-    const [openingTag, setOpeningTag] = useState('');
-    const [closingTag, setClosingTag] = useState('');
-    const [introOpeningTag, setIntroOpeningTag] = useState('');
-    const [introClosingTag, setIntroClosingTag] = useState('');
+
+    // NEW briefIntro state variables
+    const [briefIntroGroupType, setBriefIntroGroupType] = useState('');
+    const [briefIntroMainVersionId, setBriefIntroMainVersionId] = useState('');
+    const [briefIntroVersionHId, setBriefIntroVersionHId] = useState('');
+    const [briefIntroVersionEId, setBriefIntroVersionEId] = useState('');
 
     const [booksList, setBooksList] = useState([]);
     const [recordNumbers, setRecordNumbers] = useState([]);
     const [bookNumbers, setBookNumbers] = useState([]);
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
-
-    const [introParagraphs, setIntroParagraphs] = useState([]);
-    const [editingIndex, setEditingIndex] = useState(null);
-    const [editingText, setEditingText] = useState('');
 
     // Quill configurations
     const modules = {
@@ -79,30 +78,30 @@ const BriefIntroduction = () => {
 
     useEffect(() => {
         const fetchTagMainIds = async () => {
-            if (!selectedGroupType) return;
+            if (!briefIntroGroupType) return;
             try {
-                const res = await getTagMainIdsByDataType(selectedGroupType);
+                const res = await getTagMainIdsByDataType(briefIntroGroupType);
                 setTagMainIds(res.data);
             } catch (err) {
                 console.error('Error fetching tag main IDs:', err);
             }
         };
         fetchTagMainIds();
-    }, [selectedGroupType]);
+    }, [briefIntroGroupType]);
 
     useEffect(() => {
         const fetchTagDetails = async () => {
-            if (!selectedTagMainId) return;
+            if (!briefIntroMainVersionId) return;
             try {
-                const res = await getTagDetailsByTagMainId(selectedTagMainId);
-                setOpeningTag(res.data.openingTag);
-                setClosingTag(res.data.closingTag);
+                const res = await getTagDetailsByTagMainId(briefIntroMainVersionId);
+                setBriefIntroVersionHId(res.data.openingTag || '');
+                setBriefIntroVersionEId(res.data.closingTag || '');
             } catch (err) {
                 console.error('Error fetching tag details:', err);
             }
         };
         fetchTagDetails();
-    }, [selectedTagMainId]);
+    }, [briefIntroMainVersionId]);
 
     useEffect(() => {
         const matchingBooks = booksList.filter(b => b.bookNumber === bookNumber);
@@ -110,7 +109,12 @@ const BriefIntroduction = () => {
             setBookName('');
             setIntroParagraphs([]);
             setBookNameHTML('');
-            setRecordNumber('');  // Reset record number if no books are found
+            setRecordNumber('');
+            setIsRecordNumberReadOnly(false);
+            setBriefIntroGroupType('');
+            setBriefIntroMainVersionId('');
+            setBriefIntroVersionHId('');
+            setBriefIntroVersionEId('');
             return;
         }
 
@@ -118,22 +122,21 @@ const BriefIntroduction = () => {
             parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
         );
 
-        const bookName = selectedBook.bookName || '';
-        setBookName(bookName);
-
-        // Check if briefIntroduction exists, then auto-fill record number, otherwise leave it for manual input
-        if (selectedBook.briefIntroduction && selectedBook.briefIntroduction.length > 0) {
-            setRecordNumber(selectedBook.recordNumber || '');  // Auto-fill record number
-        } else {
-            setRecordNumber('');  // Allow manual input
-        }
+        setBookName(selectedBook.bookName || '');
+        setRecordNumber(selectedBook.recordNumber || '');
+        setIsRecordNumberReadOnly(true);
 
         const paragraphs = Array.isArray(selectedBook.briefIntroduction)
             ? selectedBook.briefIntroduction.map(p => p.paragraph)
             : [];
-
         setIntroParagraphs(paragraphs);
-        updateBookNameHTML(bookName, paragraphs);
+        updateBookNameHTML(selectedBook.bookName, paragraphs);
+
+        setBriefIntroGroupType(selectedBook.briefIntroGroupType || '');
+        setBriefIntroMainVersionId(selectedBook.briefIntroMainVersionId || '');
+        setBriefIntroVersionHId(selectedBook.briefIntroVersionHId || '');
+        setBriefIntroVersionEId(selectedBook.briefIntroVersionEId || '');
+
     }, [bookNumber, booksList]);
 
     const updateBookNameHTML = (bookName, paragraphs = []) => {
@@ -151,11 +154,9 @@ const BriefIntroduction = () => {
         const wrapped = editingText;
         const newParagraphs = [...introParagraphs, wrapped];
         setIntroParagraphs(newParagraphs);
-
-        // Pass bookName along with paragraphs
         updateBookNameHTML(bookName, newParagraphs);
-
         setEditingText('');
+        setEditingIndex(null);
     };
 
     const handleEditParagraph = (index) => {
@@ -168,10 +169,7 @@ const BriefIntroduction = () => {
         const updatedParagraphs = [...introParagraphs];
         updatedParagraphs[editingIndex] = editingText;
         setIntroParagraphs(updatedParagraphs);
-
-        // Pass both bookName and updatedParagraphs
         updateBookNameHTML(bookName, updatedParagraphs);
-
         setEditingIndex(null);
         setEditingText('');
     };
@@ -182,60 +180,43 @@ const BriefIntroduction = () => {
         const newParagraphs = [...introParagraphs];
         [newParagraphs[index], newParagraphs[newIndex]] = [newParagraphs[newIndex], newParagraphs[index]];
         setIntroParagraphs(newParagraphs);
-        updateBookNameHTML(newParagraphs);
-        // Pass bookName along with paragraphs
         updateBookNameHTML(bookName, newParagraphs);
     };
 
     const handleSave = async () => {
         try {
-            // Step 1: Find all books with the same bookNumber
             const matchingBooks = booksList.filter(b => b.bookNumber === bookNumber);
 
-            // Step 2: If multiple exist, choose the one with the highest recordNumber
-            if (matchingBooks.length > 1) {
-                const bookToUpdate = matchingBooks.reduce((a, b) =>
-                    parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
-                );
-
-                const payload = {
-                    recordNumber: bookToUpdate.recordNumber,
-                    bookNumber,
-                    bookName,
-                    groupType: bookToUpdate.selectedGroupType,
-                    tagMainVersionId: bookToUpdate.selectedTagMainId,
-                    tagVersionHId: bookToUpdate.openingTag,
-                    tagVersionEId: bookToUpdate.closingTag,
-                    briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
-                };
-
-                await updateBook(bookToUpdate._id, payload);
-                toast.success('Brief Introduction updated successfully!');
-            } else {
-                // Step 3: If no duplicates or only one, create a new book
-                const newRecordNumber = parseFloat(recordNumber).toFixed(2);
-                const payload = {
-                    auto: false,
-                    recordNumber: newRecordNumber,
-                    bookNumber,
-                    bookName,
-                    groupType: selectedGroupType,
-                    tagMainVersionId: selectedTagMainId,
-                    tagVersionHId: openingTag,
-                    tagVersionEId: closingTag,
-                    briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
-                };
-
-                await createBook(payload);
-                toast.success('Brief Introduction saved successfully!');
+            if (matchingBooks.length === 0) {
+                toast.error('No book found to update.');
+                return;
             }
+
+            const bookToUpdate = matchingBooks.reduce((a, b) =>
+                parseFloat(a.recordNumber) > parseFloat(b.recordNumber) ? a : b
+            );
+
+            const payload = {
+                recordNumber: bookToUpdate.recordNumber,
+                bookNumber,
+                bookName,
+                briefIntroGroupType,
+                briefIntroMainVersionId,
+                briefIntroVersionHId,
+                briefIntroVersionEId,
+                briefIntroduction: introParagraphs.map(p => ({ paragraph: p })),
+            };
+
+            await updateBook(bookToUpdate._id, payload);
+            toast.success('Brief Introduction updated successfully!');
 
             const booksRes = await getAllBooks();
             setBooksList(booksRes.data);
             resetForm();
+
         } catch (err) {
-            console.error('Error saving or updating brief introduction:', err);
-            toast.error('Failed to save or update brief introduction.');
+            console.error('Error updating brief introduction:', err);
+            toast.error('Failed to update brief introduction.');
         }
     };
 
@@ -244,22 +225,32 @@ const BriefIntroduction = () => {
         setBookNumber('');
         setBookName('');
         setBookNameHTML('');
-        setIntroText('');
-        setSelectedGroupType('');
+        setEditingText('');
+        setBriefIntroGroupType('');
         setTagMainIds([]);
-        setSelectedTagMainId('');
-        setOpeningTag('');
-        setClosingTag('');
-        setIntroOpeningTag('');
-        setIntroClosingTag('');
+        setBriefIntroMainVersionId('');
+        setBriefIntroVersionHId('');
+        setBriefIntroVersionEId('');
         setIntroParagraphs([]);
         setEditingIndex(null);
-        setEditingText('');
+        setIsRecordNumberReadOnly(false);
     };
 
     const handleReviewBook = () => {
         setShowReviewModal(true);
     };
+
+    const isEditorEmpty = (html) => {
+        if (!html) return true;
+        const text = html.replace(/<[^>]*>/g, '').trim();
+        return text === '';
+    };
+
+    // Disable Add Paragraph if editor is empty
+    const disableAddParagraph = isEditorEmpty(editingText);
+
+    // Disable Save if editor has unsaved text (editingText not empty)
+    const disableSave = !isEditorEmpty(editingText);
 
     return (
         <div className="p-4 md:p-8 flex flex-col items-center gap-10">
@@ -270,10 +261,10 @@ const BriefIntroduction = () => {
                     recordNumber={recordNumber}
                     bookName={bookName}
                     bookNumber={bookNumber}
-                    groupType={selectedGroupType}
-                    tagMainId={selectedTagMainId}
-                    tagVersionHId={openingTag}
-                    tagVersionEId={closingTag}
+                    briefIntroGroupType={briefIntroGroupType}
+                    briefIntroMainVersionId={briefIntroMainVersionId}
+                    briefIntroVersionHId={briefIntroVersionHId}
+                    briefIntroVersionEId={briefIntroVersionEId}
                     briefIntroduction={introParagraphs}
                 />
             )}
@@ -301,7 +292,8 @@ const BriefIntroduction = () => {
                                     placeholder="Record No"
                                     value={recordNumber}
                                     onChange={(e) => setRecordNumber(e.target.value)}
-                                    className="py-2 px-3 text-sm border border-green-600 rounded w-full pr-8"
+                                    readOnly={isRecordNumberReadOnly}
+                                    className={`py-2 px-3 text-sm border border-green-600 rounded w-full pr-8 ${isRecordNumberReadOnly ? 'bg-gray-200 cursor-not-allowed' : ''}`}
                                 />
                                 <Info onClick={() => setShowRecordModal(true)} size={16} className="absolute right-2 text-green-700 cursor-pointer" />
                             </div>
@@ -324,36 +316,50 @@ const BriefIntroduction = () => {
                         </div>
                     </div>
 
+                    {/* NEW briefIntro Fields Section */}
                     <div className="md:col-span-6 border border-green-700 rounded p-3">
-                        <label className="block text-base font-bold text-green-900 text-center mb-6">Head Tag Reference for Book</label>
+                        <label className="block text-base font-bold text-green-900 text-center mb-6">Brief Head Tag Reference for Book</label>
                         <div className="grid grid-cols-3 gap-2 text-center text-green-900 text-sm font-bold mb-2">
                             <span>Group Type</span>
                             <span>Tag Main Version Id</span>
                             <span>Tag Version H. Id</span>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
-                            <select className="py-2 px-3 text-sm border border-green-600 rounded" value={selectedGroupType} onChange={(e) => setSelectedGroupType(e.target.value)}>
-                                <option value="">Select Group</option>
+                            <select
+                                className="py-2 px-3 text-sm border border-green-600 rounded"
+                                value={briefIntroGroupType}
+                                onChange={(e) => setBriefIntroGroupType(e.target.value)}
+                            >
+                                <option value="">Select Group Type</option>
                                 {groupTypes.map((code, index) => (
                                     <option key={index} value={code}>{code}</option>
                                 ))}
                             </select>
-                            <select className="py-2 px-3 text-sm border border-green-600 rounded" value={selectedTagMainId} onChange={(e) => setSelectedTagMainId(e.target.value)}>
-                                <option value="">Select Tag Main Id</option>
+
+                            <select
+                                className="py-2 px-3 text-sm border border-green-600 rounded"
+                                value={briefIntroMainVersionId}
+                                onChange={(e) => setBriefIntroMainVersionId(e.target.value)}
+                            >
+                                <option value="">Select Main Version Id</option>
                                 {tagMainIds.map((id, index) => (
                                     <option key={index} value={id}>{id}</option>
                                 ))}
                             </select>
-                            <HoverPopup value={openingTag} />
+                            <HoverPopup value={briefIntroVersionHId} />
                         </div>
                     </div>
 
                     <div className="md:col-span-3 border border-green-700 rounded p-3">
                         <label className="block text-base font-bold text-green-900 text-center mb-6">End Tag</label>
                         <div className="text-center text-green-900 text-sm font-bold mb-2">Tag Version E. Id</div>
-                        <HoverPopup value={closingTag} />
+                        <HoverPopup value={briefIntroVersionEId} />
                     </div>
                 </div>
+
+                {bookName && (
+                    <label className="font-bold text-left text-xl text-green-900 block mb-2">You are editing for: <span style={{ color: "red" }}>{bookName}</span></label>
+                )}
 
                 {/* Paragraph Input Section */}
                 <div className="mb-6">
@@ -424,19 +430,28 @@ const BriefIntroduction = () => {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                    {/* <button onClick={() => {}} className="bg-blue-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
-                        <Edit size={16} /> Edit
-                    </button> */}
                     <button onClick={resetForm} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
                         <Trash2 size={16} /> Delete
                     </button>
-                    <button onClick={handleSave} className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                    <button
+                        onClick={handleSave}
+                        disabled={disableSave}
+                        className={`font-bold py-2 rounded flex items-center justify-center gap-2 text-sm ${
+                            disableSave ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 text-white'
+                        }`}
+                    >
                         <Save size={16} /> Save
                     </button>
-                    <button onClick={handleNextParagraph} className="bg-teal-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                    <button
+                        onClick={handleNextParagraph}
+                        disabled={disableAddParagraph}
+                        className={`font-bold py-2 rounded flex items-center justify-center gap-2 text-sm ${
+                            disableAddParagraph ? 'bg-teal-300 cursor-not-allowed' : 'bg-teal-600 text-white'
+                        }`}
+                    >
                         <PlusSquare size={16} /> Add Paragraph
                     </button>
-                    <button onClick={handleReviewBook} className="bg-purple-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                    <button onClick={handleReviewBook} className="bg-green-900 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
                         <BookOpen size={16} /> Review Book
                     </button>
                 </div>

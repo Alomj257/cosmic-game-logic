@@ -22,9 +22,8 @@ const AuthorNotes = () => {
             try {
                 const response = await getAllBooks();
                 const allBooks = response.data || [];
-                const booksWithIntro = allBooks.filter(b => Array.isArray(b.briefIntroduction) && b.briefIntroduction.length > 0);
-                const uniqueBookNumbers = [...new Set(booksWithIntro.map(b => b.bookNumber))];
-                setBooks(booksWithIntro);
+                const uniqueBookNumbers = [...new Set(allBooks.map(b => b.bookNumber))];
+                setBooks(allBooks);
                 setBookNumbers(uniqueBookNumbers);
             } catch (error) {
                 console.error("Error fetching books:", error);
@@ -40,32 +39,34 @@ const AuthorNotes = () => {
         setSelectedBook(matchedBook || null);
         setManualRecordNumber(matchedBook?.recordNumber || '');
         setSavedNotes(matchedBook?.authorNotes?.map(n => n.point) || []);
+        setNotesInput('');  // Clear input on book change
+        setIsEditing(false);
     };
 
     const handleSaveNotes = async () => {
         const lines = savedNotes.map(point => ({ point }));
-    
+
         if (!selectedBook) {
             toast.error("Please select a book first.");
             return;
         }
-    
+
         if (!manualRecordNumber) {
             toast.error("Record Number is required.");
             return;
         }
-    
+
         try {
             const payload = {
                 ...selectedBook,
                 recordNumber: manualRecordNumber.trim(),
                 authorNotes: lines,
             };
-    
+
             await updateBook(selectedBook._id, payload);
             toast.success("Updated notes successfully!");
-    
-            // 🔄 Reset form
+
+            // Reset form
             setNotesInput('');
             setSavedNotes([]);
             setManualRecordNumber('');
@@ -76,7 +77,7 @@ const AuthorNotes = () => {
             console.error("Error updating book:", error.response?.data || error.message);
             toast.error("Failed to update book.");
         }
-    };    
+    };
 
     const handleNextPoint = () => {
         const trimmedNote = notesInput.trim();
@@ -236,7 +237,12 @@ const AuthorNotes = () => {
                     </button>
 
                     <button
-                        className="bg-green-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
+                        disabled={notesInput.trim() !== ''}
+                        className={`${
+                            notesInput.trim() !== ''
+                                ? 'bg-green-400 cursor-not-allowed'
+                                : 'bg-green-600 hover:bg-green-700'
+                        } text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm`}
                         onClick={handleSaveNotes}
                     >
                         <Save size={16} /> Save Notes
