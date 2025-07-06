@@ -526,45 +526,62 @@ const Book = () => {
       )}
 
       {briefIntroViewData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 relative">
-            {/* Close Button */}
-            <button
-              onClick={() => setBriefIntroViewData(null)}
-              className="absolute top-4 right-4 text-red-600 hover:text-red-800"
-            >
-              <X size={24} />
-            </button>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 relative">
+      {/* Close Button */}
+      <button
+        onClick={() => setBriefIntroViewData(null)}
+        className="absolute top-4 right-4 text-red-600 hover:text-red-800"
+      >
+        <X size={24} />
+      </button>
 
-            <h2 className="text-xl font-bold text-center text-purple-700 underline mb-6">
-              Brief Intro Tag Details
-            </h2>
+      <h2 className="text-xl font-bold text-center text-purple-700 underline mb-6">
+        Brief Intro Tag Details
+      </h2>
 
-            <div className="space-y-4 text-sm">
-              <div className="text-purple-900">
-                <strong className="font-semibold">Group Type:</strong>
-                <span className="ml-2 text-black">{briefIntroViewData.briefIntroGroupType || '---'}</span>
-              </div>
-              <div className="text-purple-900">
-                <strong className="font-semibold">Main Version ID:</strong>
-                <span className="ml-2 text-black">{briefIntroViewData.briefIntroMainVersionId || '---'}</span>
-              </div>
-              <div className="text-purple-900">
-                <strong className="font-semibold">Version H ID:</strong>
-                <div className="mt-2 border p-3 bg-gray-50 rounded">
-                  <pre className="text-xs overflow-x-auto">{briefIntroViewData.briefIntroVersionHId || '---'}</pre>
-                </div>
-              </div>
-              <div className="text-purple-900">
-                <strong className="font-semibold">Version E ID:</strong>
-                <div className="mt-2 border p-3 bg-gray-50 rounded">
-                  <pre className="text-xs overflow-x-auto">{briefIntroViewData.briefIntroVersionEId || '---'}</pre>
-                </div>
-              </div>
-            </div>
+      <div className="space-y-4 text-sm">
+        <div className="text-purple-900">
+          <strong className="font-semibold">Group Type:</strong>
+          <span className="ml-2 text-black">{briefIntroViewData.briefIntroGroupType || '---'}</span>
+        </div>
+        <div className="text-purple-900">
+          <strong className="font-semibold">Main Version ID:</strong>
+          <span className="ml-2 text-black">{briefIntroViewData.briefIntroMainVersionId || '---'}</span>
+        </div>
+        <div className="text-purple-900">
+          <strong className="font-semibold">Version H ID:</strong>
+          <div className="mt-2 border p-3 bg-gray-50 rounded">
+            <pre className="text-xs overflow-x-auto">{briefIntroViewData.briefIntroVersionHId || '---'}</pre>
           </div>
         </div>
-      )}
+        <div className="text-purple-900">
+          <strong className="font-semibold">Version E ID:</strong>
+          <div className="mt-2 border p-3 bg-gray-50 rounded">
+            <pre className="text-xs overflow-x-auto">{briefIntroViewData.briefIntroVersionEId || '---'}</pre>
+          </div>
+        </div>
+
+        {/* ✅ Introduction Paragraphs Section */}
+        {Array.isArray(briefIntroViewData.briefIntroduction) && (
+          <div className="text-purple-900">
+            <strong className="font-semibold block mb-2">Brief Introduction:</strong>
+            <div className="space-y-2">
+              {briefIntroViewData.briefIntroduction.map((item, index) => (
+                <div
+                  key={index}
+                  className="border border-purple-300 rounded p-2 bg-white text-sm"
+                  dangerouslySetInnerHTML={{ __html: item.paragraph }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
