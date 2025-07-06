@@ -29,7 +29,28 @@ const CreateNewBook = () => {
     const [showBookNumberModal, setShowBookNumberModal] = useState(false);
     const [recordNumbers, setRecordNumbers] = useState([]);
     const [bookNumbers, setBookNumbers] = useState([]);
+    const [autoRecordNumber, setAutoRecordNumber] = useState('');
 
+
+    useEffect(() => {
+        const fetchAutoRecordNumber = async () => {
+            if (recordMode === 'auto') {
+                try {
+                    const books = await getAllBooks();
+                    const existingNumbers = books.data
+                        .map(book => parseFloat(book.recordNumber))
+                        .filter(n => !isNaN(n));
+                    const maxNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0;
+                    const newNumber = (maxNumber + 2).toFixed(2);
+                    setAutoRecordNumber(newNumber);
+                } catch (error) {
+                    console.error('Error fetching record numbers:', error);
+                }
+            }
+        };
+
+        fetchAutoRecordNumber();
+    }, [recordMode]);
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -105,6 +126,7 @@ const CreateNewBook = () => {
             setCreateSelectedMainId('');
             setCreateOpeningTag('');
             setCreateClosingTag('');
+            window.location.reload();
         } catch (error) {
             console.error('Error creating book:', error);
             toast.error('Failed to create book.');
@@ -205,7 +227,8 @@ const CreateNewBook = () => {
                 <ReviewModal
                     onClose={() => setShowReviewModal(false)}
                     recordMode={recordMode}
-                    recordNumber={recordNumber}
+                    // recordNumber={recordNumber || autoRecordNumber}
+                    recordNumber={recordMode === 'auto' ? autoRecordNumber : recordNumber}
                     bookNumber={bookNumber}
                     bookName={bookName}
                     groupType={createGroupType}
@@ -240,7 +263,7 @@ const CreateNewBook = () => {
                             <button
                                 className={`px-3 py-1 text-xs font-semibold border rounded ${recordMode === 'auto' ? 'bg-green-300' : 'bg-white'} border-green-600`}
                                 onClick={() => setRecordMode('auto')}
-                                
+
                             >
                                 Auto
                             </button>
@@ -260,10 +283,11 @@ const CreateNewBook = () => {
                                     type="text"
                                     placeholder="Record No"
                                     disabled={isRecordDisabled}
-                                    value={recordNumber}
+                                    value={isRecordDisabled ? autoRecordNumber : recordNumber}
                                     onChange={(e) => setRecordNumber(e.target.value)}
                                     className={`py-2 px-3 text-sm border rounded ${isRecordDisabled ? 'bg-gray-200' : 'bg-white'} border-green-600 w-full pr-8`}
                                 />
+
                                 <Info
                                     onClick={handleRecordInfoClick}
                                     size={16}
