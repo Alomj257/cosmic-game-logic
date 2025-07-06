@@ -430,31 +430,36 @@ const BriefIntroduction = () => {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                    <button onClick={resetForm} className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                    <button
+                        onClick={resetForm}
+                        className="bg-red-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
+                    >
                         <Trash2 size={16} /> Delete
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={disableSave}
-                        className={`font-bold py-2 rounded flex items-center justify-center gap-2 text-sm ${
-                            disableSave ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 text-white'
-                        }`}
+                        className={`font-bold py-2 rounded flex items-center justify-center gap-2 text-sm text-white ${disableSave ? 'bg-green-200 cursor-not-allowed' : 'bg-green-600'
+                            }`}
                     >
                         <Save size={16} /> Save
                     </button>
                     <button
                         onClick={handleNextParagraph}
                         disabled={disableAddParagraph}
-                        className={`font-bold py-2 rounded flex items-center justify-center gap-2 text-sm ${
-                            disableAddParagraph ? 'bg-teal-300 cursor-not-allowed' : 'bg-teal-600 text-white'
-                        }`}
+                        className={`font-bold py-2 rounded flex items-center justify-center gap-2 text-sm text-white ${disableAddParagraph ? 'bg-teal-200 cursor-not-allowed' : 'bg-teal-600'
+                            }`}
                     >
                         <PlusSquare size={16} /> Add Paragraph
                     </button>
-                    <button onClick={handleReviewBook} className="bg-green-900 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm">
+                    <button
+                        onClick={handleReviewBook}
+                        className="bg-green-900 text-white font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"
+                    >
                         <BookOpen size={16} /> Review Book
                     </button>
                 </div>
+
             </div>
         </div>
     );
