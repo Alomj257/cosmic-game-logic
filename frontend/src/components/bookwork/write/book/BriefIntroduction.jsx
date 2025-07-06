@@ -252,6 +252,14 @@ const BriefIntroduction = () => {
     // Disable Save if editor has unsaved text (editingText not empty)
     const disableSave = !isEditorEmpty(editingText);
 
+    const handleRemoveParagraph = (index) => {
+        const updatedParagraphs = introParagraphs.filter((_, i) => i !== index);
+        setIntroParagraphs(updatedParagraphs);
+        updateBookNameHTML(bookName, updatedParagraphs);
+    };
+
+
+
     return (
         <div className="p-4 md:p-8 flex flex-col items-center gap-10">
             {showReviewModal && (
@@ -393,8 +401,15 @@ const BriefIntroduction = () => {
                                             value={editingText}
                                             onChange={(e) => setEditingText(e.target.value)}
                                             className="w-full border border-green-600 rounded px-2 py-1 text-sm"
+                                            placeholder="Edit your paragraph here..."
                                         />
-                                        <button onClick={handleUpdateParagraph} className="text-white bg-green-600 rounded px-2 py-1">
+                                        <button
+                                            onClick={handleUpdateParagraph}
+                                            disabled={isEditorEmpty(editingText)}
+                                            className={`flex items-center gap-1 px-4 py-2 ml-2 rounded text-white text-sm font-bold 
+                ${isEditorEmpty(editingText) ? 'bg-green-200 cursor-not-allowed' : 'bg-green-600'}`}
+                                            title="Update Paragraph"
+                                        >
                                             <Check size={16} />
                                         </button>
                                     </>
@@ -404,13 +419,18 @@ const BriefIntroduction = () => {
                                             className="w-full border border-green-600 rounded px-2 py-1 text-sm bg-white"
                                             dangerouslySetInnerHTML={{ __html: para }}
                                         />
-                                        <button onClick={() => handleEditParagraph(index)} className="text-blue-600">
+                                        <button
+                                            onClick={() => handleEditParagraph(index)}
+                                            className="text-blue-600"
+                                            title="Edit Paragraph"
+                                        >
                                             <Edit size={16} />
                                         </button>
                                         <button
                                             onClick={() => moveParagraph(index, -1)}
                                             disabled={index === 0}
                                             className="text-gray-700"
+                                            title="Move Up"
                                         >
                                             <ArrowUp size={16} />
                                         </button>
@@ -418,8 +438,16 @@ const BriefIntroduction = () => {
                                             onClick={() => moveParagraph(index, 1)}
                                             disabled={index === introParagraphs.length - 1}
                                             className="text-gray-700"
+                                            title="Move Down"
                                         >
                                             <ArrowDown size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleRemoveParagraph(index)}
+                                            className="text-red-600"
+                                            title="Remove Paragraph"
+                                        >
+                                            <Trash2 size={16} />
                                         </button>
                                     </>
                                 )}
