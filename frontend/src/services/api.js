@@ -30,5 +30,8 @@ export const getBookById = (id) => API.get(`/books/${id}`);
 export const updateBook = (id, updatedData) =>
   API.put(`/books/update/${id}`, updatedData);
 export const deleteBook = (id) => API.delete(`/books/delete/${id}`);
+export const getBooksWithChapters = () => {
+  return API.get('/books/with-chapters');
+};
 
 export default API;

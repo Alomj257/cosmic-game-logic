@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import ChapterTree from './ChapterTree';
 
 const BookTree = ({ books, onSelect }) => {
-  const [activeBook, setActiveBook] = useState(null);
+  const [activeBookId, setActiveBookId] = useState(null);
 
-  const handleSelect = (book) => {
-    setActiveBook(book._id);
+  const handleBookClick = (book) => {
+    setActiveBookId((prev) => (prev === book._id ? null : book._id));
     onSelect(book);
   };
 
@@ -14,15 +14,18 @@ const BookTree = ({ books, onSelect }) => {
       {books.map((book) => (
         <li key={book._id}>
           <div
-            onClick={() => handleSelect(book)}
+            onClick={() => handleBookClick(book)}
             className={`cursor-pointer font-semibold px-3 py-1 rounded-md transition text-sm
-              ${activeBook === book._id 
-                ? 'bg-brown-600 text-white' 
+              ${activeBookId === book._id
+                ? 'bg-brown-600 text-white'
                 : 'bg-white text-brown-600 hover:bg-gray-300'}`}
           >
             {book.bookName}
           </div>
-          {book.chapters && <ChapterTree chapters={book.chapters} onSelect={onSelect} />}
+
+          {activeBookId === book._id && book.chapters && book.chapters.length > 0 && (
+            <ChapterTree chapters={book.chapters} onSelect={onSelect} />
+          )}
         </li>
       ))}
     </ul>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BookTree from '../../components/bookwork/read/BookTree';
 import ContentViewer from '../../components/bookwork/read/ContentViewer';
-import { getAllBooks } from '../../services/api';
+import { getBooksWithChapters } from '../../services/api';
 
 const ReadPage = () => {
   const [books, setBooks] = useState([]);
@@ -9,40 +9,17 @@ const ReadPage = () => {
 
   useEffect(() => {
     const fetchBooks = async () => {
-  try {
-    const response = await getAllBooks();
-    const booksData = response.data;
-
-    const bookMap = new Map();
-
-    booksData.forEach((book) => {
-      if (!book.bookNumber) return;
-
-      const existing = bookMap.get(book.bookNumber);
-
-      if (
-        !existing ||
-        (Array.isArray(book.briefIntroduction) && book.briefIntroduction.length > 0)
-      ) {
-        bookMap.set(book.bookNumber, book);
+      try {
+        const response = await getBooksWithChapters();
+        setBooks(response.data);
+      } catch (error) {
+        console.error('Error fetching books:', error);
+        setBooks([]);
       }
-    });
+    };
 
-    const uniqueBooks = Array.from(bookMap.values());
-
-    uniqueBooks.sort((a, b) => Number(a.bookNumber) - Number(b.bookNumber));
-
-    setBooks(uniqueBooks);
-  } catch (error) {
-    console.error('Error fetching books:', error);
-    setBooks([]);
-  }
-};
-
-  
     fetchBooks();
   }, []);
-  
 
   const handleSelect = (item) => {
     setSelectedContent(item);
@@ -54,7 +31,7 @@ const ReadPage = () => {
       <div className="w-1/3 border-r overflow-y-auto p-4 hide-scrollbar">
         <h2 className="text-xl font-bold mb-4">Books</h2>
         {books.length === 0 ? (
-          <p>No books available with complete data.</p>
+          <p>No books available.</p>
         ) : (
           <BookTree books={books} onSelect={handleSelect} />
         )}

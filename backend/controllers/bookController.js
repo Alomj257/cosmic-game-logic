@@ -1,5 +1,6 @@
 const Book = require("../models/Book");
 const { getNextRecordNumber } = require("../helpers/bookHelpers");
+const Chapter = require('../models/Chapter');
 
 // Create Book
 exports.createBook = async (req, res) => {
@@ -119,5 +120,33 @@ exports.deleteBook = async (req, res) => {
     res.status(200).json({ message: "Book deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getBooksWithChapters = async (req, res) => {
+  try {
+    // Fetch all books
+    const books = await Book.find({}).lean();
+
+    // Fetch all chapters grouped by bookId
+    const chapters = await Chapter.find({}).lean();
+
+    // Create a map: bookId => [chapters]
+    const chaptersMap = chapters.reduce((acc, chapter) => {
+      if (!acc[chapter.bookId]) acc[chapter.bookId] = [];
+      acc[chapter.bookId].push(chapter);
+      return acc;
+    }, {});
+
+    // Attach chapters array to each book
+    const booksWithChapters = books.map((book) => ({
+      ...book,
+      chapters: chaptersMap[book._id] || [],
+    }));
+
+    res.status(200).json(booksWithChapters);
+  } catch (error) {
+    console.error('Error fetching books with chapters:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
