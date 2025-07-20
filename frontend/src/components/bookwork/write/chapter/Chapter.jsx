@@ -342,7 +342,7 @@ const Chapters = () => {
             name="chapterName"
             value={formData.chapterName}
             onChange={handleChange}
-            placeholder="e.g., Chapter 1 - Introduction"
+            placeholder="e.g., Chapter name"
             className="w-full border border-green-600 rounded p-2"
             required
           />
