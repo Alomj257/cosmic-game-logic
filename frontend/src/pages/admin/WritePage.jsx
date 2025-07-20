@@ -11,7 +11,7 @@ import {
 } from "@ant-design/icons";
 
 import Book from "../../components/bookwork/write/book/Book";
-import Chapter from "../../components/bookwork/write/Chapter";
+import Chapter from "../../components/bookwork/write/chapter/Chapter";
 import Heading from "../../components/bookwork/write/Heading";
 import SubHeading from "../../components/bookwork/write/SubHeading";
 import SubSubHeading from "../../components/bookwork/write/SubSubHeading";

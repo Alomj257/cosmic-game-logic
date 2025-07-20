@@ -10,8 +10,8 @@ const ChapterTree = ({ chapters, onSelect }) => {
             className="cursor-pointer font-medium hover:text-green-600 transition"
           >
             <div>
-  <span style={{ color: '#8B4513' }}>📃</span> {chapter.chapterName}
-</div>
+              <span style={{ color: '#8B4513' }}>📃</span> {chapter.chapterName}
+            </div>
 
           </div>
         </li>

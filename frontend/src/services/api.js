@@ -34,4 +34,9 @@ export const getBooksWithChapters = () => {
   return API.get('/books/with-chapters');
 };
 
+// Create new chapter
+export const createChapter = (data) => {
+  return API.post("/chapters", data);
+};
+
 export default API;
