@@ -207,66 +207,65 @@ const Chapters = () => {
       >
         <h2 className="text-3xl font-bold text-center text-green-700 mb-6 underline">CREATE CHAPTER</h2>
 
-        <fieldset className="border border-green-700 p-4 rounded bg-green-50">
-            <legend className="text-md font-bold text-green-800">Book Details</legend>
-
+        <fieldset className="border border-green-700 p-4 rounded bg-green-50 mb-6">
+          <legend className="text-md font-bold text-green-800">Book Details</legend>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
-          {/* Dropdown */}
-          <div className="flex-1">
-            <label className="block text-sm font-bold text-green-900 mb-1">Select Book</label>
-            <select
-              name="bookId"
-              value={formData.bookId}
-              onChange={handleChange}
-              className="w-full border border-green-600 rounded p-2"
-              required
-            >
-              <option value="">Select a Book</option>
-              {books.map((book) => (
-                <option key={book._id} value={book._id}>
-                  {book.bookName}
-                </option>
-              ))}
-            </select>
+            {/* Dropdown */}
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-green-900 mb-1">Select Book</label>
+              <select
+                name="bookId"
+                value={formData.bookId}
+                onChange={handleChange}
+                className="w-full border border-green-600 rounded p-2"
+                required
+              >
+                <option value="">Select a Book</option>
+                {books.map((book) => (
+                  <option key={book._id} value={book._id}>
+                    {book.bookName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Book No. */}
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-green-900 mb-1">Book No.</label>
+              <input
+                type="text"
+                value={formData.bookId ? bookMeta.bookNumber : ""}
+                disabled
+                placeholder="Select book please"
+                className="w-full border border-green-600 rounded p-2 bg-gray-100 text-green-900"
+              />
+            </div>
+
+            {/* Record No. */}
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-green-900 mb-1">Record No.</label>
+              <input
+                type="text"
+                value={formData.bookId ? bookMeta.recordNumber : ""}
+                disabled
+                placeholder="Select book please"
+                className="w-full border border-green-600 rounded p-2 bg-gray-100 text-green-900"
+              />
+            </div>
+
+            {/* Next Chapter No. */}
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-green-900 mb-1">Chapter No.</label>
+              <input
+                type="text"
+                value={formData.bookId ? bookMeta.nextChapterNumber : ""}
+                disabled
+                placeholder="Select book please"
+                className="w-full border border-green-600 rounded p-2 bg-gray-100 text-green-900"
+              />
+            </div>
           </div>
-
-          {/* Book No. */}
-          {formData.bookId && (
-            <>
-              <div className="flex-1">
-                <label className="block text-sm font-bold text-green-900 mb-1">Book No.</label>
-                <input
-                  type="text"
-                  value={bookMeta.bookNumber}
-                  disabled
-                  className="w-full border border-green-600 rounded p-2 bg-gray-100 text-green-900"
-                />
-              </div>
-
-              <div className="flex-1">
-                <label className="block text-sm font-bold text-green-900 mb-1">Record No.</label>
-                <input
-                  type="text"
-                  value={bookMeta.recordNumber}
-                  disabled
-                  className="w-full border border-green-600 rounded p-2 bg-gray-100 text-green-900"
-                />
-              </div>
-
-              <div className="flex-1">
-                <label className="block text-sm font-bold text-green-900 mb-1">Next Chapter No.</label>
-                <input
-                  type="text"
-                  value={bookMeta.nextChapterNumber}
-                  disabled
-                  className="w-full border border-green-600 rounded p-2 bg-gray-100 text-green-900"
-                />
-              </div>
-            </>
-          )}
-        </div>
         </fieldset>
-
 
         <div className="mb-4 text-center">
           <h3 className="text-2xl font-bold text-green-700">CHAPTER NAME</h3>
