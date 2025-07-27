@@ -5,6 +5,7 @@ import {
   getAllTags,
   getTagMainIdsByDataType,
   getTagDetailsByTagMainId,
+  getChapterCountByBookId
 } from "../../../../services/api";
 import { toast } from "react-hot-toast";
 import ReactQuill from "react-quill";
@@ -42,25 +43,32 @@ const Chapters = () => {
 
   useEffect(() => {
     const fetchBookMeta = async () => {
-      if (!formData.bookId) return;
+      if (!formData.bookId || books.length === 0) return;
 
       try {
-        const res = await getAllBooks(); // Ideally replace with a getBookMetaById(bookId) if available
-        const book = res.data.find((b) => b._id === formData.bookId);
-        if (book) {
-          setBookMeta({
-            bookNumber: book.bookNumber,
-            recordNumber: book.recordNumber,
-            nextChapterNumber: (book.chapterCount || 0) + 1,
-          });
+        const book = books.find((b) => b._id === formData.bookId);
+        if (!book) {
+          console.log("Book not found");
+          return;
         }
+
+        console.log("Calling getChapterCountByBookId with", book._id);
+        const countRes = await getChapterCountByBookId(book._id);
+        console.log("Chapter count response:", countRes);
+
+        setBookMeta({
+          bookNumber: book.bookNumber,
+          recordNumber: book.recordNumber,
+          nextChapterNumber: (countRes.data.count || 0) + 1,
+        });
       } catch (err) {
-        // toast.error("Failed to fetch book metadata");
+        console.error("Book meta error:", err);
+        toast.error("Failed to fetch book metadata or chapter count");
       }
     };
-
     fetchBookMeta();
-  }, [formData.bookId]);
+  }, [formData.bookId, books]);
+
 
 
   useEffect(() => {

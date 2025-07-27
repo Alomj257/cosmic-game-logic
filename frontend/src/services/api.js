@@ -39,4 +39,7 @@ export const createChapter = (data) => {
   return API.post("/chapters", data);
 };
 
+export const getChapterCountByBookId = (bookId) => {
+  return API.get(`/chapters/count/${bookId}`);
+};
 export default API;
