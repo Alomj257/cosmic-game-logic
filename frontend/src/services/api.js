@@ -42,4 +42,10 @@ export const createChapter = (data) => {
 export const getChapterCountByBookId = (bookId) => {
   return API.get(`/chapters/count/${bookId}`);
 };
+
+export const getChapters = () => API.get("/chapters");
+export const getChapterById = (id) => API.get(`/chapters/${id}`);
+export const updateChapter = (id, data) => API.put(`/chapters/${id}`, data);
+export const deleteChapter = (id) => API.delete(`/chapters/${id}`);
+
 export default API;
