@@ -48,10 +48,12 @@ const ContentViewer = ({ content }) => {
 
                         {/* Show chapter content ONLY if chapter */}
                         {isChapter && (
-                            <div className="mt-4 whitespace-pre-wrap text-justify">
-                                {content.content}
-                            </div>
+                            <div
+                                className="mt-4 whitespace-pre-wrap text-justify"
+                                dangerouslySetInnerHTML={{ __html: content.content }}
+                            />
                         )}
+
                     </div>
                 </div>
             </div>

@@ -10,8 +10,10 @@ const BookTree = ({ books, onSelect }) => {
   };
 
   return (
-    <ul className="space-y-2">
-      {books.map((book) => (
+  <ul className="space-y-2">
+    {[...books]
+      .sort((a, b) => Number(a.bookNumber) - Number(b.bookNumber))
+      .map((book) => (
         <li key={book._id}>
           <div
             onClick={() => handleBookClick(book)}
@@ -28,8 +30,9 @@ const BookTree = ({ books, onSelect }) => {
           )}
         </li>
       ))}
-    </ul>
-  );
+  </ul>
+);
+
 };
 
 export default BookTree;

@@ -229,11 +229,14 @@ const Chapters = () => {
                 required
               >
                 <option value="">Select a Book</option>
-                {books.map((book) => (
-                  <option key={book._id} value={book._id}>
-                    {book.bookName}
-                  </option>
-                ))}
+                {[...books]
+                  .sort((a, b) => Number(a.bookNumber) - Number(b.bookNumber))
+                  .map((book) => (
+                    <option key={book._id} value={book._id}>
+                      {book.bookName}
+                    </option>
+                  ))}
+
               </select>
             </div>
 
