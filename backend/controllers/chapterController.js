@@ -153,3 +153,23 @@ exports.deleteChapter = async (req, res) => {
     });
   }
 };
+
+// 🔢 Get chapter count for a specific book
+exports.getChapterCountByBookId = async (req, res) => {
+  try {
+    const { bookId } = req.params;
+
+    const count = await Chapter.countDocuments({ bookId });
+
+    res.status(200).json({
+      success: true,
+      count,
+    });
+  } catch (error) {
+    console.error("Get Chapter Count Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching chapter count",
+    });
+  }
+};

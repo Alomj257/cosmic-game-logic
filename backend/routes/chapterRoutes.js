@@ -17,4 +17,7 @@ router.put("/:id", chapterController.updateChapter);
 // Delete Chapter
 router.delete("/:id", chapterController.deleteChapter);
 
+// Chapter count
+router.get('/count/:bookId', chapterController.getChapterCountByBookId);
+
 module.exports = router;
