@@ -16,6 +16,11 @@ const Chapter = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false); // <-- View Modal toggle
 
+  const [editData, setEditData] = useState(null); // holds chapter data being edited
+const [showEditModal, setShowEditModal] = useState(false); // controls edit modal visibility
+const [saving, setSaving] = useState(false); // to show loading state on save
+
+
   useEffect(() => {
     fetchChapters();
   }, []);
@@ -48,6 +53,18 @@ const Chapter = () => {
     ) : (
       "---"
     );
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteChapter(deleteId);
+      setChapters((prev) => prev.filter((chapter) => chapter._id !== deleteId));
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    } catch (error) {
+      console.error("Failed to delete chapter:", error);
+    }
   };
 
   return (
@@ -223,6 +240,31 @@ const Chapter = () => {
 
 
       {/* (Optional) You can add Delete Modal here */}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+          <div className="bg-green-100 border border-green-700 rounded-xl p-6 shadow-lg w-[90%] max-w-md text-center">
+            <h2 className="text-xl font-bold text-green-800 mb-4 underline">Delete Chapter</h2>
+            <p className="text-green-900 mb-6">Are you sure you want to delete this chapter?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-white border border-green-700 rounded hover:bg-green-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 };
