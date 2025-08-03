@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Modal } from "antd"; // <-- Import Ant Design Modal
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import {
   getChapters,
   getChapterById,
@@ -14,16 +15,46 @@ const Chapter = () => {
   const [viewData, setViewData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false); // <-- View Modal toggle
-
-  const [editData, setEditData] = useState(null); // holds chapter data being edited
-const [showEditModal, setShowEditModal] = useState(false); // controls edit modal visibility
-const [saving, setSaving] = useState(false); // to show loading state on save
-
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchChapters();
   }, []);
+
+  const openEditModal = (chapter) => {
+    setEditData(chapter);
+    setShowEditModal(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Special handler for ReactQuill content changes (HTML string)
+  const handleContentChange = (content) => {
+    setEditData((prev) => ({ ...prev, content }));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editData?._id) return;
+    setSaving(true);
+    try {
+      const updated = await updateChapter(editData._id, editData);
+      setChapters((prev) =>
+        prev.map((ch) => (ch._id === updated.data._id ? updated.data : ch))
+      );
+      setShowEditModal(false);
+      setEditData(null);
+    } catch (error) {
+      console.error("Failed to update chapter:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const fetchChapters = async () => {
     setLoading(true);
@@ -81,8 +112,8 @@ const [saving, setSaving] = useState(false); // to show loading state on save
             <th className="border border-green-700 text-center px-2 py-2">Chapter No</th>
             <th className="border border-green-700 text-center px-2 py-2 w-[180px]">Chapter Name</th>
             <th className="border border-green-700 text-center px-2 py-2 w-[250px]">Content</th>
-            <th className="border border-green-700 text-center px-2 py-2 w-[200px]">Chapter Tag</th>
-            <th className="border border-green-700 text-center px-2 py-2 w-[200px]">Content Tag</th>
+            <th className="border border-green-700 px-2 py-2 w-[200px]">Chapter Tag</th>
+            <th className="border border-green-700 px-2 py-2 w-[200px]">Content Tag</th>
             <th className="border border-green-700 text-center px-2 py-2 w-[100px]">Actions</th>
           </tr>
         </thead>
@@ -128,6 +159,13 @@ const [saving, setSaving] = useState(false); // to show loading state on save
                       setShowDeleteModal(true);
                     }}
                   />
+                  <button
+                    onClick={() => openEditModal(chapter)}
+                    className="text-blue-700 cursor-pointer underline ml-2"
+                    title="Edit Chapter"
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))
@@ -138,20 +176,16 @@ const [saving, setSaving] = useState(false); // to show loading state on save
       {viewData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full p-8 overflow-y-auto max-h-[85vh] relative">
-            {/* Close Button */}
             <button
               onClick={() => setViewData(null)}
               className="absolute top-4 right-4 text-red-600 hover:text-red-800"
             >
               <span className="text-xl font-bold">×</span>
             </button>
-
             <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">
               Chapter Details
             </h2>
-
             <div className="space-y-4 text-sm">
-              {/* Grid layout for general fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="text-green-900">
                   <strong className="font-semibold">Record Number:</strong>
@@ -166,8 +200,6 @@ const [saving, setSaving] = useState(false); // to show loading state on save
                   <span className="text-black ml-2">{viewData.chapterNumber || "---"}</span>
                 </div>
               </div>
-
-              {/* Chapter Tag Section */}
               <div className="border border-green-300 p-4 rounded bg-green-50">
                 <h3 className="text-md font-semibold text-green-700 mb-2">Chapter Tag</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -189,8 +221,6 @@ const [saving, setSaving] = useState(false); // to show loading state on save
                   </div>
                 </div>
               </div>
-
-              {/* Chapter Name */}
               <div className="mt-4">
                 <strong className="font-bold text-xl text-green-900">
                   Chapter Name:
@@ -199,8 +229,6 @@ const [saving, setSaving] = useState(false); // to show loading state on save
                   {viewData.chapterName || "---"}
                 </span>
               </div>
-
-              {/* Content Tag Section */}
               <div className="border border-green-300 p-4 rounded bg-green-50">
                 <h3 className="text-md font-semibold text-green-700 mb-2">Content Tag</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -222,8 +250,6 @@ const [saving, setSaving] = useState(false); // to show loading state on save
                   </div>
                 </div>
               </div>
-
-              {/* Chapter Content */}
               <div>
                 <strong className="font-bold text-xl text-green-900">Chapter Content:</strong>
                 <div
@@ -237,9 +263,6 @@ const [saving, setSaving] = useState(false); // to show loading state on save
           </div>
         </div>
       )}
-
-
-      {/* (Optional) You can add Delete Modal here */}
 
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
@@ -264,7 +287,144 @@ const [saving, setSaving] = useState(false); // to show loading state on save
         </div>
       )}
 
+      {showEditModal && editData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full p-8 max-h-[85vh] overflow-y-auto relative">
+            <button
+              onClick={() => {
+                setShowEditModal(false);
+                setEditData(null);
+              }}
+              className="absolute top-4 right-4 text-red-600 hover:text-red-800"
+            >
+              <span className="text-xl font-bold">×</span>
+            </button>
+            <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">
+              Edit Chapter
+            </h2>
 
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveEdit();
+              }}
+              className="space-y-4 text-sm"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-semibold text-green-900 mb-1">
+                    Record Number
+                  </label>
+                  <input
+                    type="text"
+                    name="recordNumber"
+                    value={editData.recordNumber || ""}
+                    onChange={handleEditChange}
+                    className="w-full border border-green-300 rounded p-2"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-green-900 mb-1">
+                    Book Number
+                  </label>
+                  <input
+                    type="text"
+                    name="bookNumber"
+                    value={editData.bookNumber || ""}
+                    onChange={handleEditChange}
+                    className="w-full border border-green-300 rounded p-2"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-green-900 mb-1">
+                    Chapter Number
+                  </label>
+                  <input
+                    type="text"
+                    name="chapterNumber"
+                    value={editData.chapterNumber || ""}
+                    onChange={handleEditChange}
+                    className="w-full border border-green-300 rounded p-2"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-green-900 mb-1">
+                    Chapter Name
+                  </label>
+                  <input
+                    type="text"
+                    name="chapterName"
+                    value={editData.chapterName || ""}
+                    onChange={handleEditChange}
+                    className="w-full border border-green-300 rounded p-2"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-green-900 mb-1">
+                  Content (HTML allowed)
+                </label>
+                <ReactQuill
+                  theme="snow"
+                  value={editData.content || ""}
+                  onChange={handleContentChange}
+                  modules={{
+                    toolbar: [
+                      [{ header: [1, 2, false] }],
+                      ["bold", "italic", "underline", "strike", "blockquote"],
+                      [{ list: "ordered" }, { list: "bullet" }],
+                      [{ color: [] }, { background: [] }],
+                      ["link", "image"],
+                      ["clean"],
+                    ],
+                  }}
+                  formats={[
+                    "header",
+                    "bold",
+                    "italic",
+                    "underline",
+                    "strike",
+                    "blockquote",
+                    "list",
+                    "bullet",
+                    "color",       // add color to formats list
+                    "background",  // add background to formats list
+                    "link",
+                    "image",
+                  ]}
+                  style={{ height: "200px", marginBottom: "50px" }}
+                />
+
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditData(null);
+                  }}
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  disabled={saving}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
+                  disabled={saving}
+                >
+                  {saving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
