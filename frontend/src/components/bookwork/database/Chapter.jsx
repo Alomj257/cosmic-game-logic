@@ -246,7 +246,7 @@ const Chapter = () => {
               onClick={() => setViewData(null)}
               className="absolute top-4 right-4 text-red-600 hover:text-red-800"
             >
-              <span className="text-xl font-bold">×</span>
+              <span className="text-4xl">×</span>
             </button>
             <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">
               Chapter Details
@@ -363,7 +363,7 @@ const Chapter = () => {
               }}
               className="absolute top-4 right-4 text-red-600 hover:text-red-800"
             >
-              <span className="text-xl font-bold">×</span>
+              <span className="text-4xl">×</span>
             </button>
 
             <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">
