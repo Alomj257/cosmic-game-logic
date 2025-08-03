@@ -40,6 +40,19 @@ const Chapters = () => {
     nextChapterNumber: "",
   });
 
+  const modules = {
+    toolbar: [
+      [{ 'header': '1' }, { 'header': '2' }],
+      [{ 'font': [] }, { 'size': ['small', 'medium', 'large'] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['bold', 'italic', 'underline'],
+      ['link'],
+      [{ 'align': [] }],
+      ['blockquote', 'code-block'],
+      [{ 'color': [] }, { 'background': [] }],
+      ['image']
+    ]
+  };
 
   useEffect(() => {
     const fetchBookMeta = async () => {
@@ -434,6 +447,7 @@ const Chapters = () => {
           <ReactQuill
             theme="snow"
             value={formData.content}
+            modules={modules}
             onChange={(value) => setFormData((prev) => ({ ...prev, content: value }))}
             className="bg-white border rounded"
           />
