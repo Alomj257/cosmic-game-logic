@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import {
@@ -7,6 +7,8 @@ import {
   getChapterById,
   updateChapter,
   deleteChapter,
+  getAllTags, getTagMainIdsByDataType,
+  getTagDetailsByTagMainId
 } from "../../../services/api";
 
 const Chapter = () => {
@@ -33,6 +35,69 @@ const Chapter = () => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
+  const handleEditTagChange = async (e, tagType) => {
+    const { name, value } = e.target;
+
+    // Update the nested editData for chapterTag or contentTag
+    setEditData((prev) => {
+      const updatedTag = { ...prev[tagType], [name]: value };
+
+      // If groupType changed, reset tagMainVersionId and version Ids
+      if (name === "groupType") {
+        updatedTag.tagMainVersionId = "";
+        updatedTag.tagVersionHId = "";
+        updatedTag.tagVersionEId = "";
+      }
+
+      return { ...prev, [tagType]: updatedTag };
+    });
+
+    // If groupType changed, fetch new tag main ids
+    if (name === "groupType") {
+      try {
+        const res = await getTagMainIdsByDataType(value);
+        if (tagType === "chapterTag") setChapterTagMainIds(res.data);
+        else setContentTagMainIds(res.data);
+      } catch {
+        toast.error("Failed to load tag main IDs");
+      }
+    }
+
+    // If tagMainVersionId changed, fetch tag details (openingTag & closingTag)
+    if (name === "tagMainVersionId") {
+      try {
+        const res = await getTagDetailsByTagMainId(value);
+        setEditData((prev) => ({
+          ...prev,
+          [tagType]: {
+            ...prev[tagType],
+            tagVersionHId: res.data.openingTag,
+            tagVersionEId: res.data.closingTag,
+          },
+        }));
+      } catch {
+        toast.error("Failed to fetch tag details");
+      }
+    }
+  };
+  const [groupTypes, setGroupTypes] = useState([]);
+  const [chapterTagMainIds, setChapterTagMainIds] = useState([]);
+  const [contentTagMainIds, setContentTagMainIds] = useState([]);
+
+  // Load groupTypes once, for example on modal open or component mount
+  useEffect(() => {
+    const fetchGroupTypes = async () => {
+      try {
+        const res = await getAllTags();
+        const types = [...new Set(res.data.map((tag) => tag.dataTypeCode))];
+        setGroupTypes(types);
+      } catch {
+        toast.error("Failed to load group types");
+      }
+    };
+    fetchGroupTypes();
+  }, []);
+
 
   // Special handler for ReactQuill content changes (HTML string)
   const handleContentChange = (content) => {
@@ -142,31 +207,32 @@ const Chapter = () => {
                 </td>
                 <td className="border border-green-700 px-2 py-2">{renderTagDetails(chapter.chapterTag)}</td>
                 <td className="border border-green-700 px-2 py-2">{renderTagDetails(chapter.contentTag)}</td>
-                <td className="border border-green-700 text-center px-2 py-2 space-x-2 w-[100px]">
-                  <EyeOutlined
-                    className="text-green-700 cursor-pointer"
-                    title="View Chapter"
-                    onClick={() => {
-                      setViewData(chapter);
-                      setShowViewModal(true);
-                    }}
-                  />
-                  <DeleteOutlined
-                    className="text-red-600 cursor-pointer"
-                    title="Delete Chapter"
-                    onClick={() => {
-                      setDeleteId(chapter._id);
-                      setShowDeleteModal(true);
-                    }}
-                  />
-                  <button
-                    onClick={() => openEditModal(chapter)}
-                    className="text-blue-700 cursor-pointer underline ml-2"
-                    title="Edit Chapter"
-                  >
-                    Edit
-                  </button>
+                <td className="border border-green-700 text-center px-2 py-2 w-[100px]">
+                  <div className="flex justify-center items-center space-x-2">
+                    <EyeOutlined
+                      className="text-green-700 cursor-pointer"
+                      title="View Chapter"
+                      onClick={() => {
+                        setViewData(chapter);
+                        setShowViewModal(true);
+                      }}
+                    />
+                    <EditOutlined
+                      onClick={() => openEditModal(chapter)}
+                      className="text-blue-700 cursor-pointer"
+                      title="Edit Chapter"
+                    />
+                    <DeleteOutlined
+                      className="text-red-600 cursor-pointer"
+                      title="Delete Chapter"
+                      onClick={() => {
+                        setDeleteId(chapter._id);
+                        setShowDeleteModal(true);
+                      }}
+                    />
+                  </div>
                 </td>
+
               </tr>
             ))
           )}
@@ -299,6 +365,7 @@ const Chapter = () => {
             >
               <span className="text-xl font-bold">×</span>
             </button>
+
             <h2 className="text-2xl font-bold text-green-700 mb-6 text-center underline">
               Edit Chapter
             </h2>
@@ -308,9 +375,8 @@ const Chapter = () => {
                 e.preventDefault();
                 handleSaveEdit();
               }}
-              className="space-y-4 text-sm"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              className="space-y-6 text-sm"
+            ><div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block font-semibold text-green-900 mb-1">
                     Record Number
@@ -321,7 +387,6 @@ const Chapter = () => {
                     value={editData.recordNumber || ""}
                     onChange={handleEditChange}
                     className="w-full border border-green-300 rounded p-2"
-                    disabled
                   />
                 </div>
                 <div>
@@ -334,7 +399,6 @@ const Chapter = () => {
                     value={editData.bookNumber || ""}
                     onChange={handleEditChange}
                     className="w-full border border-green-300 rounded p-2"
-                    disabled
                   />
                 </div>
                 <div>
@@ -347,27 +411,114 @@ const Chapter = () => {
                     value={editData.chapterNumber || ""}
                     onChange={handleEditChange}
                     className="w-full border border-green-300 rounded p-2"
-                    disabled
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-green-900 mb-1">
-                    Chapter Name
-                  </label>
-                  <input
-                    type="text"
-                    name="chapterName"
-                    value={editData.chapterName || ""}
-                    onChange={handleEditChange}
-                    className="w-full border border-green-300 rounded p-2"
                   />
                 </div>
               </div>
+              {/* Chapter Tag */}
+              <fieldset className="border border-green-300 p-4 rounded">
+                <legend className="text-green-800 font-semibold">Chapter Tag</legend>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label>Group Type</label>
+                    <select
+                      name="groupType"
+                      value={editData.chapterTag.groupType || ""}
+                      onChange={(e) => handleEditTagChange(e, "chapterTag")}
+                      className="w-full border border-green-300 rounded p-2"
+                    >
+                      <option value="">Select Group Type</option>
+                      {groupTypes.map((type, idx) => (
+                        <option key={idx} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
 
+                  <div>
+                    <label>Main Version Id</label>
+                    <select
+                      name="tagMainVersionId"
+                      value={editData.chapterTag.tagMainVersionId || ""}
+                      onChange={(e) => handleEditTagChange(e, "chapterTag")}
+                      className="w-full border border-green-300 rounded p-2"
+                    >
+                      <option value="">Select Tag Main Id</option>
+                      {chapterTagMainIds.map((id, idx) => (
+                        <option key={idx} value={id}>{id}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label>Version H Id</label>
+                    <input type="text" value={editData.chapterTag.tagVersionHId || ""} readOnly className="w-full border p-2 rounded bg-gray-100" />
+                  </div>
+                  <div>
+                    <label>Version E Id</label>
+                    <input type="text" value={editData.chapterTag.tagVersionEId || ""} readOnly className="w-full border p-2 rounded bg-gray-100" />
+                  </div>
+                </div>
+              </fieldset>
+
+              {/* Chapter Name */}
               <div>
-                <label className="block font-semibold text-green-900 mb-1">
-                  Content (HTML allowed)
-                </label>
+                <label className="block font-semibold text-green-900 mb-1">Chapter Name</label>
+                <input
+                  type="text"
+                  name="chapterName"
+                  value={editData.chapterName || ""}
+                  onChange={handleEditChange}
+                  className="w-full border border-green-300 rounded p-2 text-lg font-semibold"
+                />
+              </div>
+
+              {/* Content Tag */}
+              <fieldset className="border border-green-300 p-4 rounded">
+                <legend className="text-green-800 font-semibold">Content Tag</legend>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label>Group Type</label>
+                    <select
+                      name="groupType"
+                      value={editData.contentTag.groupType || ""}
+                      onChange={(e) => handleEditTagChange(e, "contentTag")}
+                      className="w-full border border-green-300 rounded p-2"
+                    >
+                      <option value="">Select Group Type</option>
+                      {groupTypes.map((type, idx) => (
+                        <option key={idx} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label>Main Version Id</label>
+                    <select
+                      name="tagMainVersionId"
+                      value={editData.contentTag.tagMainVersionId || ""}
+                      onChange={(e) => handleEditTagChange(e, "contentTag")}
+                      className="w-full border border-green-300 rounded p-2"
+                    >
+                      <option value="">Select Tag Main Id</option>
+                      {contentTagMainIds.map((id, idx) => (
+                        <option key={idx} value={id}>{id}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label>Version H Id</label>
+                    <input type="text" value={editData.contentTag.tagVersionHId || ""} readOnly className="w-full border p-2 rounded bg-gray-100" />
+                  </div>
+                  <div>
+                    <label>Version E Id</label>
+                    <input type="text" value={editData.contentTag.tagVersionEId || ""} readOnly className="w-full border p-2 rounded bg-gray-100" />
+                  </div>
+                </div>
+              </fieldset>
+
+              {/* Content */}
+              <div>
+                <label className="block font-semibold text-green-900 mb-1">Content (HTML allowed)</label>
                 <ReactQuill
                   theme="snow"
                   value={editData.content || ""}
@@ -379,7 +530,7 @@ const Chapter = () => {
                       [{ list: "ordered" }, { list: "bullet" }],
                       [{ color: [] }, { background: [] }],
                       ["link", "image"],
-                      ["clean"],
+                      ["clean"]
                     ],
                   }}
                   formats={[
@@ -391,16 +542,16 @@ const Chapter = () => {
                     "blockquote",
                     "list",
                     "bullet",
-                    "color",       // add color to formats list
-                    "background",  // add background to formats list
+                    "color",
+                    "background",
                     "link",
-                    "image",
+                    "image"
                   ]}
                   style={{ height: "200px", marginBottom: "50px" }}
                 />
-
               </div>
 
+              {/* Action Buttons */}
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
@@ -425,6 +576,7 @@ const Chapter = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
